@@ -1,0 +1,42 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "Causal Inference with Scientific Computing"
+  site-url: "https://yoonismo.github.io/causal-computing/"
+  page-navigation: true
+  navbar:
+    left:
+      - text: "Home"
+        href: index.qmd
+    right:
+      - text: "Yoon Choi"
+        href: "https://yoonismo.github.io"
+  sidebar:
+    style: docked
+    search: true
+    contents:
+      - text: "Introduction"
+        href: index.qmd
+      - section: "Installation"
+        href: installation/index.qmd
+        contents:
+          - text: "macOS"
+            href: installation/macos.qmd
+          - text: "Windows"
+            href: installation/windows.qmd
+      - text: "Week 1: Tools of Reproducible Work"
+        href: week1.qmd
+  page-footer:
+    center: "© 2026 Yoon Choi · Built with [Quarto](https://quarto.org)"
+
+format:
+  html:
+    theme:
+      light: cosmo
+      dark: darkly
+    css: styles.css
+    toc: true
+    toc-depth: 3
+    code-copy: true

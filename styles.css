@@ -1,0 +1,4 @@
+/* Small adjustments on top of the Quarto theme */
+.sidebar-title { font-size: 1.05rem; }
+table { font-size: 0.95rem; }
+.lead-question { font-size: 1.15rem; font-style: italic; }

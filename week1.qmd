@@ -1,0 +1,162 @@
+---
+title: "Week 1: Tools of Reproducible Work"
+subtitle: "From your laptop to an automatically checked public repository"
+---
+
+::: {.callout-note}
+## Before class
+Complete the [Installation](installation/index.qmd) page for your operating system and submit your three screenshots.
+:::
+
+## Goal for today
+
+By the end of the session you should be able to say:
+
+> *I edited and ran a Python notebook in Visual Studio Code, recorded the change with Git, pushed the commit to GitHub, and confirmed that GitHub Actions could automatically check the updated project.*
+
+## Plan (90 minutes)
+
+| Minutes | Activity |
+|---|---|
+| 0–10 | Environment check. If your notebook will not run, switch to GitHub Codespaces. |
+| 10–20 | Why code in the age of LLMs, and a map of today's tools. |
+| 20–40 | **Lab 1** — Create your repository and find the planted bugs. |
+| 40–55 | **Lab 2** — Strengthen the check, fix the bug, commit, push. |
+| 55–75 | **Lab 3** — Break the automatic check on purpose, then fix it. |
+| 75–85 | **Lab 4** — Edit on GitHub, then pull. |
+| 85–90 | Wrap-up: what a green check does and does not mean. |
+
+## A map of the tools
+
+The tools are related in four different ways, not in one straight line.
+
+| Relationship | Chain |
+|---|---|
+| **Running a Python file** | Visual Studio Code → Python extension → Python interpreter → output in the terminal |
+| **Running a notebook** | Visual Studio Code → Jupyter extension → kernel (`ipykernel`) → output under the cell |
+| **Version control** | Visual Studio Code's Source Control view → Git on your computer → *local* repository ⇄ *remote* repository on GitHub |
+| **Automatic checking** | push → GitHub repository → GitHub Actions runs the workflow on a fresh machine → green check or red X |
+
+Visual Studio Code is the workspace that connects these tools. It does **not** replace the Python interpreter, the Jupyter kernel, or Git.
+
+### Python file versus notebook
+
+| | Python file | Jupyter notebook |
+|---|---|---|
+| Extension | `.py` | `.ipynb` |
+| Runs | The whole file, top to bottom | One cell at a time, in any order |
+| Stores | Code only | Code, text, math, plots, and outputs |
+
+Because notebook cells can run in any order, always check a finished notebook by **Restart Kernel → Run All**.
+
+### Git versus GitHub
+
+| Git | GitHub |
+|---|---|
+| Software on your computer | A website that hosts repositories |
+| Records the history of your changes (`add`, `commit`) | Stores pushed commits, shares them, and runs automatic checks |
+| Works offline | Needs the internet |
+
+```text
+GitHub (remote) ──clone / pull──▶ your computer (local)
+                                    edit → save → git add → git commit
+your computer   ──────push───────▶ GitHub  ──▶  GitHub Actions: ✔ or ✘
+```
+
+## Lab 1 — Planted bugs
+
+1. Open the `week1-starter` repository on GitHub and click **Use this template** → **Create a new repository** in *your* account.
+2. Clone *your* copy, and open the **folder** (not just one file) in Visual Studio Code.
+3. Open `week1.ipynb`, select your course kernel, and run the cells in order.
+
+The notebook defines the function $f(x) = x^2$ in two ways:
+
+```python
+def squared(x):
+    return x * 2          # something is wrong here
+
+squared_lambda = lambda x: x ** 2
+```
+
+**Questions to answer as you go**
+
+- `squared(2)` and `squared_lambda(2)` both return `4`. Does that mean both functions are correct?
+- What do the two plots look like on the interval $[-3, 3]$?
+- What happens when you call `squared_lambda([1, 2, 3])`? And `squared([1, 2, 3])`? Which of the two is more dangerous, and why?
+- What changes when you use `np.array([1, 2, 3])` instead of a list?
+
+**Using an LLM — explain only.** Paste the function and your plot into a chat and ask:
+
+> *Explain in plain language why these two functions give the same value at x = 2 but different plots. Do not rewrite the code.*
+
+## Lab 2 — Fix, commit, push
+
+1. The notebook's last cell checks the function at a single point: `assert squared(2) == 4`. Replace it with a check at many points:
+
+    ```python
+    grid = np.linspace(-3, 3, 61)
+    assert np.allclose(squared(grid), grid ** 2)
+    ```
+
+    Run it. It fails — good.
+
+2. Fix `squared`. Then **Restart Kernel → Run All**.
+3. **Clear All Outputs** before committing (outputs and embedded images make notebook changes unreadable in Git).
+4. In the terminal:
+
+    ```bash
+    git status
+    git add week1.ipynb
+    git commit -m "Fix squared() and strengthen the check"
+    git push
+    ```
+
+5. On GitHub, open the **Actions** tab and watch the workflow run.
+
+::: {.callout-tip}
+## Lesson
+An automatic check catches only what you ask it to check. The one-point check would have passed with the bug still in place.
+:::
+
+## Lab 3 — A deliberate red X
+
+1. Next week we use `pandas`. Install it **only on your own machine**:
+    - uv: `uv pip install pandas`
+    - conda: `conda install pandas`
+2. Add `import pandas as pd` to the first cell. The notebook runs on your laptop.
+3. Commit and push. On GitHub, the check **fails**: `ModuleNotFoundError: No module named 'pandas'`.
+4. Open the failed run and read the log. Ask an LLM to explain the error — **without** changing any files.
+5. Add `pandas` to `requirements.txt`. Commit, push, and watch it turn green.
+
+::: {.callout-tip}
+## Lesson
+"It works on my computer" is not reproducibility. Reproducibility starts with *declaring* your dependencies.
+:::
+
+## Lab 4 — Pull
+
+1. On the GitHub website, edit `README.md` (add your name) and commit it there.
+2. On your laptop, run `git pull` and check that the change arrived.
+
+When other people may also change the repository, remember the order:
+
+> **pull → edit → save → add → commit → push**
+
+## What a green check means
+
+A green check means that every command in the workflow finished without error, for that commit, on a fresh machine.
+
+It does **not** mean that
+
+- the causal assumptions hold,
+- the research design is valid,
+- the estimates are correct, or
+- the code is free of logical errors.
+
+Its value depends entirely on what you told it to check.
+
+## Rules for using LLMs in this course
+
+1. Never paste passwords, access tokens, private data, or personal information.
+2. Ask for an explanation before you ask for a change.
+3. You run every command and make every edit yourself — and you check the result.
