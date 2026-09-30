@@ -1,0 +1,66 @@
+---
+title: "Installation"
+subtitle: "Complete this before the first class"
+---
+
+::: {.callout-warning}
+## Draft
+The commands on these pages have not yet been tested on a clean machine. Please report anything that does not work.
+:::
+
+## Choose your operating system
+
+::: {.grid}
+::: {.g-col-12 .g-col-md-6}
+### [macOS →](macos.qmd)
+Uses the Terminal app.
+:::
+::: {.g-col-12 .g-col-md-6}
+### [Windows →](windows.qmd)
+PowerShell setup.
+:::
+:::
+
+## What you will install, and why
+
+| Tool | What it is | Why you need it |
+|---|---|---|
+| **Visual Studio Code** | A code editor and workspace | You write, run, and version-control your work in one window. |
+| **Python and Jupyter extensions** | Add-ons for Visual Studio Code | Let Visual Studio Code run Python files and notebooks. |
+| **Git** | Version-control software on your computer | Records the history of your changes. |
+| **GitHub account** | An online home for Git repositories | Stores and shares your work; runs automatic checks. |
+| **Python** | The programming language and its interpreter | Runs your code. |
+| **A course environment** | A separate "room" for this course's packages | Keeps this course's package versions from clashing with anything else. |
+
+## Two ways to install Python
+
+Pick **one** and stay with it.
+
+| Track | Tool | Choose it if… |
+|---|---|---|
+| **Default** | **uv** | You are new to Python. One tool installs Python, creates the environment, and installs packages; the steps are almost identical on macOS and Windows. |
+| **Alternative** | **conda** (via **Miniforge**) | You already use conda, or you will need non-Python software later. |
+
+## Packages we start with
+
+We deliberately start small and add packages as the course needs them.
+
+| Package | Used for |
+|---|---|
+| `numpy` | Arrays, vectorized math, random numbers |
+| `scipy` | Probability distributions, optimization, statistical tests |
+| `matplotlib` | Plots |
+| `ipykernel` | Lets notebooks run code in your course environment |
+| `jupyterlab` | A browser-based notebook interface (optional alternative to Visual Studio Code) |
+
+## What to submit
+
+Three screenshots:
+
+1. The output of the setup-check script (Python and package versions).
+2. The parabola plot from your first notebook.
+3. Your test repository on GitHub after your first push.
+
+## If nothing works
+
+Do not spend more than an hour stuck. Come to class anyway: you can work in **GitHub Codespaces**, a browser version of Visual Studio Code, while we fix your installation.
