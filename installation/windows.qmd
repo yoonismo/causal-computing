@@ -3,11 +3,6 @@ title: "Installation on Windows"
 subtitle: "About 45–60 minutes"
 ---
 
-::: {.callout-warning}
-## Draft
-Not yet tested on a clean machine.
-:::
-
 ## Step 1. Open PowerShell
 
 Press the **Windows** key, type **PowerShell**, and press **Enter**. You will type commands here. After typing each command, press **Enter**.
