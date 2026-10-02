@@ -10,21 +10,12 @@ Complete the [Installation](installation/index.qmd) page for your operating syst
 
 ## Goal for today
 
-By the end of the session you should be able to say:
+After this class, you will be able to:
 
-> *I edited and ran a Python notebook in Visual Studio Code, recorded the change with Git, pushed the commit to GitHub, and confirmed that GitHub Actions could automatically check the updated project.*
-
-## Plan (90 minutes)
-
-| Minutes | Activity |
-|---|---|
-| 0–10 | Environment check. If your notebook will not run, switch to GitHub Codespaces. |
-| 10–20 | Why code in the age of LLMs, and a map of today's tools. |
-| 20–40 | **Lab 1** — Create your repository and find the planted bugs. |
-| 40–55 | **Lab 2** — Strengthen the check, fix the bug, commit, push. |
-| 55–75 | **Lab 3** — Break the automatic check on purpose, then fix it. |
-| 75–85 | **Lab 4** — Edit on GitHub, then pull. |
-| 85–90 | Wrap-up: what a green check does and does not mean. |
+- edit and run a Python notebook in Visual Studio Code,
+- record your changes with Git,
+- push your commits to GitHub, and
+- check the automatic test result on GitHub Actions.
 
 ## A map of the tools
 
@@ -57,10 +48,25 @@ Because notebook cells can run in any order, always check a finished notebook by
 | Records the history of your changes (`add`, `commit`) | Stores pushed commits, shares them, and runs automatic checks |
 | Works offline | Needs the internet |
 
-```text
-GitHub (remote) ──clone / pull──▶ your computer (local)
-                                    edit → save → git add → git commit
-your computer   ──────push───────▶ GitHub  ──▶  GitHub Actions: ✔ or ✘
+```{mermaid}
+flowchart LR
+  subgraph local["Your computer: local repository"]
+    direction TB
+    W["Working directory<br/>(edit and save files)"]
+    S["Staging area<br/>(changes chosen for the next commit)"]
+    H[("Local history<br/>(your commits)")]
+    W -- "git add" --> S
+    S -- "git commit" --> H
+  end
+  subgraph remote["GitHub: remote repository"]
+    direction TB
+    R[("Repository on GitHub")]
+    A{{"GitHub Actions<br/>runs the checks"}}
+    R -- "every push" --> A
+  end
+  R -- "git clone / git pull" --> W
+  H -- "git push" --> R
+  A -. "green check or red X" .-> R
 ```
 
 ## Lab 1 — Planted bugs
