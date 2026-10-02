@@ -1,0 +1,14 @@
+# Quarto build output (GitHub Actions builds the site; do not commit it)
+_site/
+.quarto/
+
+# Private working notes (syllabus drafts, study glossary) — never pushed
+_notes/
+
+# Python
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
