@@ -48,26 +48,67 @@ Because notebook cells can run in any order, always check a finished notebook by
 | Records the history of your changes (`add`, `commit`) | Stores pushed commits, shares them, and runs automatic checks |
 | Works offline | Needs the internet |
 
-```{mermaid}
-flowchart LR
-  subgraph local["Your computer: local repository"]
-    direction TB
-    W["Working directory<br/>(edit and save files)"]
-    S["Staging area<br/>(changes chosen for the next commit)"]
-    H[("Local history<br/>(your commits)")]
-    W -- "git add" --> S
-    S -- "git commit" --> H
-  end
-  subgraph remote["GitHub: remote repository"]
-    direction TB
-    R[("Repository on GitHub")]
-    A{{"GitHub Actions<br/>runs the checks"}}
-    R -- "every push" --> A
-  end
-  R -- "git clone / git pull" --> W
-  H -- "git push" --> R
-  A -. "green check or red X" .-> R
+::: {.git-diagram}
+```{=html}
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 430" width="100%" style="max-width:760px" role="img" aria-label="Git on your computer and GitHub: git add, git commit, git push, git clone or pull, and GitHub Actions checks">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+  </defs>
+  <g font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif" fill="currentColor" stroke="none">
+    <!-- panels -->
+    <rect x="10" y="20" width="330" height="395" rx="14" fill="#2780e3" fill-opacity="0.07" stroke="#2780e3" stroke-opacity="0.6" stroke-width="1.5"/>
+    <rect x="420" y="20" width="330" height="395" rx="14" fill="#3fb618" fill-opacity="0.07" stroke="#3fb618" stroke-opacity="0.6" stroke-width="1.5"/>
+    <text x="175" y="50" text-anchor="middle" font-size="16" font-weight="700">Your computer</text>
+    <text x="175" y="68" text-anchor="middle" font-size="13" opacity="0.75">local repository</text>
+    <text x="585" y="50" text-anchor="middle" font-size="16" font-weight="700">GitHub</text>
+    <text x="585" y="68" text-anchor="middle" font-size="13" opacity="0.75">remote repository</text>
+
+    <!-- local boxes -->
+    <g stroke="currentColor" stroke-opacity="0.55" stroke-width="1.3" fill="currentColor" fill-opacity="0.04">
+      <rect x="55" y="85" width="240" height="60" rx="8"/>
+      <rect x="55" y="205" width="240" height="60" rx="8"/>
+      <rect x="55" y="325" width="240" height="60" rx="8"/>
+      <rect x="465" y="85" width="240" height="155" rx="8"/>
+      <rect x="465" y="305" width="240" height="60" rx="8"/>
+    </g>
+    <text x="175" y="111" text-anchor="middle" font-size="15" font-weight="600">Working directory</text>
+    <text x="175" y="131" text-anchor="middle" font-size="12.5" opacity="0.75">edit and save files</text>
+    <text x="175" y="231" text-anchor="middle" font-size="15" font-weight="600">Staging area</text>
+    <text x="175" y="251" text-anchor="middle" font-size="12.5" opacity="0.75">changes chosen for the next commit</text>
+    <text x="175" y="351" text-anchor="middle" font-size="15" font-weight="600">Local history</text>
+    <text x="175" y="371" text-anchor="middle" font-size="12.5" opacity="0.75">your commits</text>
+    <text x="585" y="158" text-anchor="middle" font-size="15" font-weight="600">Repository on GitHub</text>
+    <text x="585" y="178" text-anchor="middle" font-size="12.5" opacity="0.75">your pushed commits</text>
+    <text x="585" y="331" text-anchor="middle" font-size="15" font-weight="600">GitHub Actions</text>
+    <text x="585" y="351" text-anchor="middle" font-size="12.5" opacity="0.75">runs the checks on a fresh machine</text>
+  </g>
+
+  <!-- arrows -->
+  <g stroke="currentColor" stroke-width="1.6" fill="none" marker-end="url(#ah)">
+    <line x1="175" y1="145" x2="175" y2="203"/>
+    <line x1="175" y1="265" x2="175" y2="323"/>
+    <line x1="465" y1="112" x2="297" y2="112"/>
+    <polyline points="295,355 382,355 382,205 463,205"/>
+    <line x1="525" y1="240" x2="525" y2="303"/>
+    <line x1="655" y1="305" x2="655" y2="242" stroke-dasharray="5 4"/>
+  </g>
+
+  <!-- arrow labels -->
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" fill="currentColor">
+    <text x="185" y="179">git add</text>
+    <text x="185" y="299">git commit</text>
+    <text x="381" y="102" text-anchor="middle">git clone / git pull</text>
+    <text x="390" y="290">git push</text>
+    <text x="533" y="276" font-size="12">every push</text>
+    <text x="663" y="276" font-size="12">✔ or ✘</text>
+  </g>
+</svg>
 ```
+:::
+
+::: {.no-copy}
 
 ## Lab 1 — Planted bugs
 
@@ -79,7 +120,7 @@ The notebook defines the function $f(x) = x^2$ in two ways:
 
 ```python
 def squared(x):
-    return x * 2          # something is wrong here
+    return x * 2
 
 squared_lambda = lambda x: x ** 2
 ```
@@ -166,3 +207,5 @@ Its value depends entirely on what you told it to check.
 1. Never paste passwords, access tokens, private data, or personal information.
 2. Ask for an explanation before you ask for a change.
 3. You run every command and make every edit yourself — and you check the result.
+
+:::

@@ -2,7 +2,7 @@
 title: "Introduction"
 ---
 
-This site provides technical support for the implementation sections of **ECON 481 Data Science Computing for Economics ** at the University of Washington (Autumn 2026). It collects the setup guides and weekly lab materials for the course in one place.
+This site provides technical support for the implementation sections of **ECON 481 *Data Science Computing for Economics*** at the University of Washington (Autumn 2026). It collects the setup guides and weekly lab materials for the course in one place.
 
 Start with the Installation guide for your operating system, then follow the weekly pages in order.
 

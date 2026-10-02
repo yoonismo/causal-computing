@@ -2,3 +2,9 @@
 .sidebar-title { font-size: 1.05rem; }
 table { font-size: 0.95rem; }
 .lead-question { font-size: 1.15rem; font-style: italic; }
+
+/* Git and GitHub diagram: breathing room above and below */
+.git-diagram { margin: 1.75rem 0 3rem; }
+
+/* No copy buttons from Lab 1 onward: students type the code themselves */
+.no-copy .code-copy-button { display: none !important; }
