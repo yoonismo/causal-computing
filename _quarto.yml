@@ -3,7 +3,9 @@ project:
   output-dir: _site
 
 website:
-  title: "Causal Inference with Scientific Computing"
+  # Future title, for when this becomes my own course:
+  # title: "Causal Inference with Scientific Computing"
+  title: "Data Science Computing for Economics"
   site-url: "https://yoonismo.github.io/causal-computing/"
   page-navigation: true
   navbar:

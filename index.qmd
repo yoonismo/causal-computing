@@ -1,66 +1,17 @@
 ---
 title: "Introduction"
-subtitle: "Why learn to code when large language models can write it?"
-bibliography: references.bib
 ---
 
-::: {.callout-note}
-## Draft
-This site is under construction. It is first used in the implementation sections of ECON 481 *Data Science Computing for Economics* at the University of Washington (Autumn 2026), and is written to remain useful to anyone preparing for work in econometrics or statistics.
-:::
+This site provides technical support for the implementation sections of **ECON 481 *Data Science Computing for Economics*** at the University of Washington (Autumn 2026). It collects the setup guides and weekly lab materials for the course in one place.
 
-## The question
-
-Large language models (LLMs) now write working code in seconds. So why should an economist still learn to write it?
-
-Econometric work typically moves through five steps:
-
-> **question → identification → estimation → implementation → empirical application**
-
-This course focuses on the last two steps — and on the **replication packages** that make them verifiable.
-
-## Where we are going
-
-Two capabilities are the destination of the course.
-
-**Reproduce.**
-: Document and archive the computational environment, data, and code in public archives, so that anyone can obtain your results again.
-
-**Audit.**
-: Assess the reproducibility of other researchers' replication packages, and so help sustain the integrity of empirical research.
-
-## How we get there
-
-We build toward those two capabilities through four practices that you carry out yourself.
-
-| Practice | What it means |
-|---|---|
-| **Formulate** | Translate research and business questions into well-posed computational problems. |
-| **Simulate** | Build worlds in which the truth is known — including *both* potential outcomes for every unit — and check whether an estimator recovers the causal effect. |
-| **Evaluate** | Judge whether code written by an LLM computes the quantity you intend. |
-| **Debug** | Diagnose and fix errors — both the ones that stop your program and the silent ones that do not. |
-
-### Why *Evaluate* needs an economist
-
-Code that follows generic programming conventions can run without error and still compute the wrong estimand, mis-implement the identification strategy, or mishandle data.
-
-A common example is silently dropping every observation that has a missing value (*listwise deletion*). General-purpose data-cleaning advice often recommends it. But in household earnings data, nonresponse is not random: it is highest in *both tails* of the earnings distribution [@bollinger2019]. Dropping those observations therefore distorts exactly the inequality measures an economist cares about.
-
-### You cannot evaluate what you have never written
-
-In a randomized experiment with 52 junior engineers learning a new Python library, participants who used an AI assistant scored 50% on a follow-up comprehension quiz, versus 67% for those who coded by hand. The gap was largest on debugging questions. Participants who asked the assistant only *conceptual* questions kept most of the learning [@shen2026].
-
-This course is designed around that finding. You will use LLMs — but in ways that keep the understanding with you.
+Start with the Installation guide for your operating system, then follow the weekly pages in order.
 
 ## How this site is organized
 
-| Section | Contents |
+| Section | What you will find |
 |---|---|
-| [Installation](installation/index.qmd) | Set up Python, Visual Studio Code, Jupyter, and Git on [macOS](installation/macos.qmd) or [Windows](installation/windows.qmd). |
+| [Installation](installation/index.qmd) | Step-by-step setup of Python, Visual Studio Code, Jupyter, and Git, with separate guides for [macOS](installation/macos.qmd) and [Windows](installation/windows.qmd). Complete it before the first class. |
 | [Week 1](week1.qmd) | Tools of reproducible work: from your laptop to an automatically checked public repository. |
-| *More weeks* | Coming soon: simulating counterfactual worlds, randomized experiments, observational studies, replication packages, double machine learning, heterogeneous effects, policy learning, and auditing. |
+| More weeks | Added as the course progresses. |
 
-## References
-
-::: {#refs}
-:::
+: {tbl-colwidths="[22,78]"}
