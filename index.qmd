@@ -10,7 +10,7 @@ Start with the Installation guide for your operating system, then follow the wee
 
 | Section | What you will find |
 |---|---|
-| [Installation](installation/index.qmd) | Step-by-step setup of Python, Visual Studio Code, Jupyter, and Git, with separate guides for [macOS](installation/macos.qmd) and [Windows](installation/windows.qmd). Complete it before the first class. |
+| [Installation](installation/index.qmd) | Step-by-step setup of Python, Visual Studio Code, Jupyter, and Git, with separate guides for [macOS](installation/macos.qmd) and [Windows](installation/windows.qmd). |
 | [Week 1](week1.qmd) | Tools of reproducible work: from your laptop to an automatically checked public repository. |
 | More weeks | Added as the course progresses. |
 

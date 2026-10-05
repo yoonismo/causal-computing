@@ -3,11 +3,6 @@ title: "Week 1: Tools of Reproducible Work"
 subtitle: "From your laptop to an automatically checked public repository"
 ---
 
-::: {.callout-note}
-## Before class
-Complete the [Installation](installation/index.qmd) page for your operating system and submit your three screenshots.
-:::
-
 ## Goal for today
 
 After this class, you will be able to:
@@ -28,6 +23,8 @@ The tools are related in four different ways, not in one straight line.
 | **Version control** | Visual Studio Code's Source Control view → Git on your computer → *local* repository ⇄ *remote* repository on GitHub |
 | **Automatic checking** | push → GitHub repository → GitHub Actions runs the workflow on a fresh machine → green check or red X |
 
+: {tbl-colwidths="[24,76]"}
+
 Visual Studio Code is the workspace that connects these tools. It does **not** replace the Python interpreter, the Jupyter kernel, or Git.
 
 ### Python file versus notebook
@@ -37,6 +34,8 @@ Visual Studio Code is the workspace that connects these tools. It does **not** r
 | Extension | `.py` | `.ipynb` |
 | Runs | The whole file, top to bottom | One cell at a time, in any order |
 | Stores | Code only | Code, text, math, plots, and outputs |
+
+: {tbl-colwidths="[16,42,42]"}
 
 Because notebook cells can run in any order, always check a finished notebook by **Restart Kernel → Run All**.
 
