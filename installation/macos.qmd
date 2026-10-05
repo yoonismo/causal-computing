@@ -3,18 +3,16 @@ title: "Installation on macOS"
 subtitle: "About 45–60 minutes"
 ---
 
-## Step 1. Open the Terminal
-
-Press **⌘ Space**, type **Terminal**, and press **Return**. You will type commands here. After typing each command, press **Return**.
-
-## Step 2. Install Visual Studio Code
+## Step 1. Install Visual Studio Code
 
 1. Download Visual Studio Code from <https://code.visualstudio.com> and drag it into **Applications**.
 2. Open it. Click the **Extensions** icon on the left (four squares), then install:
    - **Python** (publisher: Microsoft)
    - **Jupyter** (publisher: Microsoft)
 
-## Step 3. Install Git and introduce yourself
+## Step 2. Install Git and introduce yourself
+
+Open the **Terminal**. Press **⌘ Space**, type **Terminal**, and press **Return**. Then copy and paste each command below, one at a time, and press **Return**.
 
 ```bash
 xcode-select --install
@@ -33,11 +31,11 @@ git config --global user.name "Your Name"
 git config --global user.email "you@example.com"
 ```
 
-## Step 4. Create a GitHub account
+## Step 3. Create a GitHub account
 
 Sign up at <https://github.com>. If you are a student, apply for **GitHub Education** now — approval can take several days.
 
-## Step 5. Install Python and create the course environment
+## Step 4. Install Python and create the course environment
 
 Choose **one** track.
 
@@ -116,7 +114,7 @@ cd ~/causal-course
 
 :::
 
-## Step 6. Check 1 — run a Python file
+## Step 5. Check 1 — run a Python file
 
 In Visual Studio Code, choose **File → Open Folder…** and open `causal-course`. Create a file named `check_setup.py`:
 
@@ -133,7 +131,7 @@ print("All set!")
 
 Click **Select Interpreter** in the bottom-right corner and choose your course environment (`.venv` or `causal`). Then click the **▶ Run** button at the top right. **Take screenshot 1.**
 
-## Step 7. Check 2 — run a notebook
+## Step 6. Check 2 — run a notebook
 
 Create a file named `first_notebook.ipynb`. Click **Select Kernel** at the top right and choose your course environment. In the first cell, type:
 
@@ -149,7 +147,7 @@ plt.show()
 
 Press **Shift + Return** to run it. **Take screenshot 2.**
 
-## Step 8. Check 3 — JupyterLab (optional)
+## Step 7. Check 3 — JupyterLab (optional)
 
 With your environment active in the Terminal:
 
@@ -159,7 +157,7 @@ jupyter lab
 
 A browser tab opens. Open `first_notebook.ipynb` there and run it again. To stop JupyterLab, return to the Terminal and press **Control + C**.
 
-## Step 9. First push to GitHub
+## Step 8. First push to GitHub
 
 1. Make a new, empty folder named `github-test` and open it in Visual Studio Code.
 2. Create a file `README.md` containing one line, for example `Hello, GitHub`.
