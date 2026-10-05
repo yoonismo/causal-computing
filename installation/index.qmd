@@ -1,12 +1,7 @@
 ---
 title: "Installation"
-subtitle: "Complete this before the first class"
+subtitle: "Set up your computer for the course"
 ---
-
-::: {.callout-warning}
-## Draft
-The commands on these pages have not yet been tested on a clean machine. Please report anything that does not work.
-:::
 
 ## Choose your operating system
 

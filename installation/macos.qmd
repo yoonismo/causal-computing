@@ -33,7 +33,7 @@ git config --global user.email "you@example.com"
 
 ## Step 3. Create a GitHub account
 
-Sign up at <https://github.com>. If you are a student, apply for **GitHub Education** now — approval can take several days.
+Sign up at <https://github.com>.
 
 ## Step 4. Install Python and create the course environment
 
