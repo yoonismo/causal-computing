@@ -11,7 +11,11 @@ page-navigation: false
    - **Python** (publisher: Microsoft)
    - **Jupyter** (publisher: Microsoft)
 
-## Step 2. Install Git and introduce yourself
+## Step 2. Create a GitHub account
+
+Sign up at <https://github.com>. Remember the email address you use here. You will give the **same** email to Git in Step 3, so that GitHub can link your work to your account.
+
+## Step 3. Install Git and introduce yourself
 
 Open **PowerShell**. Press the **Windows** key, type **PowerShell**, and press **Enter**. Then copy and paste each command below, one at a time, and press **Enter**.
 
@@ -38,10 +42,6 @@ Your email:
 git config --global user.email "jdoe@uw.edu"
 ```
 
-## Step 3. Create a GitHub account
-
-Sign up at <https://github.com>.
-
 ## Step 4. Install Python and create the course environment
 
 Install uv:
@@ -56,10 +56,22 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 uv --version
 ```
 
+Check where you are:
+
+```powershell
+pwd
+```
+
+You should see your home folder, for example `C:\Users\jdoe`. If you see something else, move to your home folder:
+
+```powershell
+cd ~
+```
+
 Create a course folder:
 
 ```powershell
-mkdir ~\causal-course
+mkdir ~\ECON481
 ```
 
 Or create it in your own path:
@@ -73,7 +85,7 @@ If your Desktop is synced with OneDrive, the path starts with `C:\Users\your_id\
 Move into it:
 
 ```powershell
-cd ~\causal-course
+cd ~\ECON481
 ```
 
 If you used your own path, move into that folder instead:
@@ -122,7 +134,7 @@ You should see `Installed kernelspec econ481 in …`.
 
 ## Step 5. Check 1 — run a Python file
 
-In Visual Studio Code, choose **File → Open Folder…** and open `causal-course`. Create a file named `check_setup.py`:
+In Visual Studio Code, choose **File → Open Folder…** and open `ECON481`. Create a file named `check_setup.py`:
 
 ```python
 import sys
@@ -137,7 +149,7 @@ print("All set!")
 
 If you see **Restricted Mode** in the bottom-left corner of Visual Studio Code, click it and choose **Trust**. Otherwise the Python features stay turned off.
 
-Click **Select Interpreter** in the bottom-right corner and choose your course environment (the one inside `causal-course/.venv`). Then click the **▶ Run** button at the top right. You should see the version numbers and `All set!` in the terminal.
+Click **Select Interpreter** in the bottom-right corner and choose your course environment (the one inside `ECON481/.venv`). Then click the **▶ Run** button at the top right. You should see the version numbers and `All set!` in the terminal.
 
 ## Step 6. Check 2 — run a notebook
 
