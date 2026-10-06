@@ -139,7 +139,7 @@ Because notebook cells can run in any order, always check a finished notebook by
     - **Question 3.** Ask an LLM how to write "$x$ squared" in Python. Ask it to **explain, not to rewrite** the notebook.
     - **Question 4.** The check cell passes. Is that good news?
 
-    The last section of the notebook, *lists versus arrays*, is optional. We will come back to it in Week 2.
+    The last section of the notebook, *lists versus arrays*, is optional. 
 
 ## Lab 2 — Fix, commit, push
 
