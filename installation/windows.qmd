@@ -1,6 +1,7 @@
 ---
 title: "Installation on Windows"
 subtitle: "About 45–60 minutes"
+page-navigation: false
 ---
 
 ## Step 1. Install Visual Studio Code
@@ -111,6 +112,14 @@ If PowerShell says *"running scripts is disabled on this system"*, run this once
 Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 ```
 
+Finally, register the environment with Jupyter under the name **ECON 481 (Python 3.12)**. You do this **once**. Afterwards, any notebook in any folder can use this environment.
+
+```powershell
+python -m ipykernel install --user --name econ481 --display-name "ECON 481 (Python 3.12)"
+```
+
+You should see `Installed kernelspec econ481 in …`.
+
 ## Step 5. Check 1 — run a Python file
 
 In Visual Studio Code, choose **File → Open Folder…** and open `causal-course`. Create a file named `check_setup.py`:
@@ -132,7 +141,7 @@ Click **Select Interpreter** in the bottom-right corner and choose your course e
 
 ## Step 6. Check 2 — run a notebook
 
-Create a file named `first_notebook.ipynb`. Click **Select Kernel** at the top right and choose your course environment. In the first cell, type:
+Create a file named `first_notebook.ipynb`. Click **Select Kernel** at the top right, choose **Jupyter Kernel…**, then **ECON 481 (Python 3.12)**. In the first cell, type:
 
 ```python
 import numpy as np
@@ -160,9 +169,45 @@ A browser tab opens. Open `first_notebook.ipynb` there and run it again. To stop
 
 ## Step 8. First push to GitHub
 
-1. Make a new, empty folder named `github-test` and open it in Visual Studio Code.
-2. Create a file `README.md` containing one line, for example `Hello, GitHub`.
-3. Click the **Source Control** icon on the left (a branching line), then **Publish to GitHub**. Sign in when asked, and choose a public repository.
+This step checks that Visual Studio Code can send your work to GitHub. It uses a small test folder, **separate from** your course folder.
+
+In PowerShell, go to your home folder:
+
+```powershell
+cd ~
+```
+
+Create the test folder:
+
+```powershell
+mkdir github-test
+```
+
+Move into it:
+
+```powershell
+cd github-test
+```
+
+Create a one-line `README.md` file:
+
+```powershell
+Set-Content README.md "# Hello, GitHub"
+```
+
+Check that it is there:
+
+```powershell
+dir
+```
+
+You should see `README.md`. The full path of this folder is `C:\Users\your_id\github-test`.
+
+Then, in Visual Studio Code:
+
+1. Choose **File → Open Folder…** and open `github-test` (it is in your home folder).
+2. Click the **Source Control** icon on the left (a branching line), then **Publish to GitHub**.
+3. Sign in when asked, and choose **Publish to GitHub public repository**.
 4. Open the repository on github.com and check that `README.md` is there.
 
 ## Troubleshooting
@@ -171,4 +216,8 @@ A browser tab opens. Open `first_notebook.ipynb` there and run it again. To stop
 |---|---|---|
 | `uv` or `git` is not recognized | PowerShell was not restarted | Close and reopen PowerShell. |
 | "running scripts is disabled on this system" | PowerShell's execution policy | `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` |
-| The notebook cannot find `numpy` | The wrong kernel is selected | **Select Kernel** → choose the one inside `causal-course/.venv`. |
+| The notebook cannot find `numpy` | The wrong kernel is selected | **Select Kernel** → **Jupyter Kernel…** → **ECON 481 (Python 3.12)**. If it is not listed, press **⌘ Shift P** (Windows: **Ctrl + Shift + P**), run `Developer: Reload Window`, and try again. |
+
+---
+
+**Next:** [Week 1: Tools of Reproducible Work →](../week1.qmd)
