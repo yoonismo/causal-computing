@@ -111,7 +111,7 @@ Because notebook cells can run in any order, always check a finished notebook by
 
 ## Lab 1 — Planted bugs
 
-1. Open the `week1-starter` repository on GitHub and click **Use this template** → **Create a new repository** in *your* account.
+1. Open the [`week1-starter`](https://github.com/yoonismo/week1-starter) repository on GitHub and click **Use this template** → **Create a new repository** in *your* account.
 2. Clone *your* copy, and open the **folder** (not just one file) in Visual Studio Code.
 3. Open `week1.ipynb`, select your course kernel, and run the cells in order.
 
