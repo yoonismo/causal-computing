@@ -66,16 +66,22 @@ Create a course folder:
 mkdir ~/causal-course
 ```
 
-Or create it in your own path: 
+Or create it in your own path:
 
 ```bash
-mkdir /Users/your_id/Desktop/your/own/path
+mkdir -p /Users/your_id/Desktop/your/own/path
 ```
 
 Move into it:
 
 ```bash
 cd ~/causal-course
+```
+
+If you used your own path, move into that folder instead:
+
+```bash
+cd /Users/your_id/Desktop/your/own/path
 ```
 
 Create the environment — the separate "room" for this course. uv downloads Python for you if needed:
