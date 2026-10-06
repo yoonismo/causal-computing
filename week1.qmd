@@ -143,13 +143,20 @@ Because notebook cells can run in any order, always check a finished notebook by
 
 ## Lab 2 — Fix, commit, push
 
-1. The notebook's **Check** cell tests the function at a single point: `assert squared(2) == 4`. Replace it with a check at all 61 points of `grid`:
+1. In `week1.ipynb`, scroll to the section **2. Check**. Below **Question 4** there is a code cell:
+
+    ```python
+    assert squared(2) == 4
+    print("Check passed")
+    ```
+
+    This cell tests the function at a single point. In that same cell, replace the first line, `assert squared(2) == 4`, with a check at all 61 points of `grid` (the grid you plotted on):
 
     ```python
     assert np.allclose(squared(grid), grid ** 2)
     ```
 
-    Run it. It fails — good.
+    Run the cell. It fails with an `AssertionError` — good. That is the bug being caught.
 
 2. Fix `squared`. Then **Restart Kernel → Run All**.
 3. **Clear All Outputs**, then save the notebook (**⌘ S**; Windows: **Ctrl + S**).
@@ -198,7 +205,9 @@ An automatic check catches only what you ask it to check. The one-point check wo
 
 ## Lab 3 — A deliberate red X
 
-1. Next week we use `pandas`. Install it **only on your own machine**, into the course environment. First, activate the course environment:
+In this lab you make the GitHub check fail on purpose, read why, and fix it. You work in the same `week1` repository as in Lab 2.
+
+1. Next week we use `pandas`. Install it **only on your own machine**, into the course environment. First, activate the course environment (this works from any folder):
 
     ```bash
     source ~/ECON481/.venv/bin/activate
@@ -216,10 +225,74 @@ An automatic check catches only what you ask it to check. The one-point check wo
     uv pip install pandas
     ```
 
-2. Add `import pandas as pd` to the first code cell. The notebook runs on your laptop.
-3. Commit and push, as in Lab 2. On GitHub, the check **fails**: `ModuleNotFoundError: No module named 'pandas'`.
-4. Open the failed run and read the log. Ask an LLM to explain the error — **without** changing any files.
-5. Add `pandas` to `requirements.txt`. Commit, push, and watch it turn green.
+2. In Visual Studio Code, open `week1.ipynb`. In the first code cell (under **0. Setup**), add one new line below `import numpy as np`:
+
+    ```python
+    import pandas as pd
+    ```
+
+    Run the cell. It works on your laptop, because pandas is now in your course environment.
+
+3. **Clear All Outputs** and save the notebook. Then, in the Terminal, move into your repository:
+
+    ```bash
+    cd ~/ECON481/week1
+    ```
+
+    Windows:
+
+    ```powershell
+    cd ~\ECON481\week1
+    ```
+
+    Record and send the change:
+
+    ```bash
+    git add week1.ipynb
+    ```
+
+    ```bash
+    git commit -m "Import pandas"
+    ```
+
+    ```bash
+    git push
+    ```
+
+4. On GitHub, open the **Actions** tab. This time the run **fails** with a red X.
+5. Click the failed run, then the job **run-notebook**, then the step **Run the notebook from top to bottom**. Near the end of the log you will find:
+
+    ```
+    ModuleNotFoundError: No module named 'pandas'
+    ```
+
+    Ask an LLM to explain this error — **without** changing any files.
+
+    The reason: GitHub's machine does not have your laptop's environment. It installs only the packages listed in `requirements.txt`, and pandas is not on that list.
+
+6. In Visual Studio Code, open `requirements.txt` (in the `week1` folder, next to `week1.ipynb`). It lists one package per line. Add a new line at the end:
+
+    ```
+    pandas
+    ```
+
+    Save the file.
+
+7. Record and send this change too (you are still inside `week1`):
+
+    ```bash
+    git add requirements.txt
+    ```
+
+    ```bash
+    git commit -m "Add pandas to requirements.txt"
+    ```
+
+    ```bash
+    git push
+    ```
+
+8. Open the **Actions** tab again and watch the new run turn green.
 
 ::: {.callout-tip}
 ## Lesson
