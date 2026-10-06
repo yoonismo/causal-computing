@@ -27,14 +27,11 @@ PowerShell setup.
 | **Python** | The programming language and its interpreter | Runs your code. |
 | **A course environment** | A separate "room" for this course's packages | Keeps this course's package versions from clashing with anything else. |
 
-## Two ways to install Python
+## How we install Python: uv
 
-Pick **one** and stay with it.
+We use **uv**, one tool that installs Python, creates the course environment, and installs packages. The steps are almost identical on macOS and Windows.
 
-| Track | Tool | Choose it if… |
-|---|---|---|
-| **Default** | **uv** | You are new to Python. One tool installs Python, creates the environment, and installs packages; the steps are almost identical on macOS and Windows. |
-| **Alternative** | **conda** (via **Miniforge**) | You already use conda, or you will need non-Python software later. |
+Many economists know **conda** (from Anaconda or Miniforge). It is a fine tool, but we use uv in this course. If you already have conda, you do not need to remove it. Just follow the steps and check that your Terminal prompt shows `(.venv)` or `(causal-course)` before you install packages.
 
 ## Packages we start with
 

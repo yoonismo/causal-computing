@@ -14,14 +14,18 @@ subtitle: "About 45–60 minutes"
 
 Open the **Terminal**. Press **⌘ Space**, type **Terminal**, and press **Return**. Then copy and paste each command below, one at a time, and press **Return**.
 
-```bash
-xcode-select --install
-```
-
-A window appears. Click **Install** and wait. Then check:
+First, check whether Git is already installed:
 
 ```bash
 git --version
+```
+
+- If you see a version number (for example, `git version 2.x.x`), Git is already installed. Skip ahead to *Tell Git who you are* below.
+- If a window asks you to install the **command line developer tools**, click **Install** and wait until it finishes. Then run `git --version` again.
+- If nothing happens, run the command below, click **Install** in the window that appears, and then run `git --version` again:
+
+```bash
+xcode-select --install
 ```
 
 Tell Git who you are (use the email of your GitHub account):
@@ -36,12 +40,6 @@ git config --global user.email "you@example.com"
 Sign up at <https://github.com>.
 
 ## Step 4. Install Python and create the course environment
-
-Choose **one** track.
-
-::: {.panel-tabset group="track"}
-
-## uv (default)
 
 Install uv:
 
@@ -65,7 +63,7 @@ cd ~/causal-course
 Create the environment — the separate "room" for this course. uv downloads Python for you if needed:
 
 ```bash
-uv venv --python 3.13
+uv venv --python 3.12
 ```
 
 Look inside the folder: a hidden folder named `.venv` has appeared. That *is* the environment.
@@ -83,37 +81,6 @@ uv pip install numpy scipy matplotlib ipykernel jupyterlab
 
 Your prompt now starts with `(causal-course)` or `(.venv)`. That tells you which environment is active.
 
-## conda (Miniforge)
-
-Download and run the Miniforge installer:
-
-```bash
-curl -fsSLo Miniforge3.sh "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-$(uname -m).sh"
-bash Miniforge3.sh
-```
-
-Accept the license, keep the default location, and answer **yes** when asked to initialize conda. **Close the Terminal and open it again**, then check:
-
-```bash
-conda --version
-```
-
-Create the course environment with its packages, then enter it:
-
-```bash
-conda create -n causal python=3.13 numpy scipy matplotlib ipykernel jupyterlab -y
-conda activate causal
-```
-
-Your prompt now starts with `(causal)`. Create a course folder:
-
-```bash
-mkdir ~/causal-course
-cd ~/causal-course
-```
-
-:::
-
 ## Step 5. Check 1 — run a Python file
 
 In Visual Studio Code, choose **File → Open Folder…** and open `causal-course`. Create a file named `check_setup.py`:
@@ -129,7 +96,7 @@ print("matplotlib", matplotlib.__version__)
 print("All set!")
 ```
 
-Click **Select Interpreter** in the bottom-right corner and choose your course environment (`.venv` or `causal`). Then click the **▶ Run** button at the top right. **Take screenshot 1.**
+Click **Select Interpreter** in the bottom-right corner and choose your course environment (the one inside `causal-course/.venv`). Then click the **▶ Run** button at the top right. **Take screenshot 1.**
 
 ## Step 6. Check 2 — run a notebook
 
@@ -168,9 +135,9 @@ A browser tab opens. Open `first_notebook.ipynb` there and run it again. To stop
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| `command not found: uv` or `conda` | The Terminal was not restarted | Close and reopen the Terminal. |
-| The notebook cannot find `numpy` | The wrong kernel is selected | **Select Kernel** → choose `.venv` or `causal`. |
-| Several Pythons appear in **Select Interpreter** | macOS ships its own Python | Choose the one inside `causal-course/.venv` or the `causal` environment. |
+| `command not found: uv` | The Terminal was not restarted | Close and reopen the Terminal. |
+| The notebook cannot find `numpy` | The wrong kernel is selected | **Select Kernel** → choose the one inside `causal-course/.venv`. |
+| Several Pythons appear in **Select Interpreter** | macOS ships its own Python | Choose the one inside `causal-course/.venv`. |
 | `xcode-select` says it is already installed | Git is already there | Skip to `git --version`. |
 
 Still stuck after an hour? Stop, and come to class — we will use **GitHub Codespaces** in the browser.

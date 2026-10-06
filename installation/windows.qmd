@@ -12,13 +12,16 @@ subtitle: "About 45–60 minutes"
 
 ## Step 2. Install Git and introduce yourself
 
-Download **Git for Windows** from <https://git-scm.com/downloads/win> and run the installer with the default options.
+Open **PowerShell**. Press the **Windows** key, type **PowerShell**, and press **Enter**. Then copy and paste each command below, one at a time, and press **Enter**.
 
-Open **PowerShell**. Press the **Windows** key, type **PowerShell**, and press **Enter**. Then copy and paste each command below, one at a time, and press **Enter**. First, check that Git is installed:
+First, check whether Git is already installed:
 
 ```powershell
 git --version
 ```
+
+- If you see a version number (for example, `git version 2.x.x.windows.x`), Git is already installed. Skip ahead to *Tell Git who you are* below.
+- If PowerShell says `git` is **not recognized**, download **Git for Windows** from <https://git-scm.com/downloads/win> and run the installer with the default options. Then **close PowerShell, open it again**, and run `git --version` again.
 
 Tell Git who you are (use the email of your GitHub account):
 
@@ -32,12 +35,6 @@ git config --global user.email "you@example.com"
 Sign up at <https://github.com>.
 
 ## Step 4. Install Python and create the course environment
-
-Choose **one** track.
-
-::: {.panel-tabset group="track"}
-
-## uv (default)
 
 Install uv:
 
@@ -61,7 +58,7 @@ cd ~\causal-course
 Create the environment — the separate "room" for this course. uv downloads Python for you if needed:
 
 ```powershell
-uv venv --python 3.13
+uv venv --python 3.12
 ```
 
 Look inside the folder: a folder named `.venv` has appeared. That *is* the environment.
@@ -83,36 +80,6 @@ If PowerShell says *"running scripts is disabled on this system"*, run this once
 Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 ```
 
-## conda (Miniforge)
-
-1. Download the installer: <https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Windows-x86_64.exe>
-2. Run it with the default options.
-3. From the Start menu, open **Miniforge Prompt**. Use it (instead of PowerShell) for the commands below.
-
-Check:
-
-```powershell
-conda --version
-```
-
-Create the course environment with its packages, then enter it:
-
-```powershell
-conda create -n causal python=3.13 numpy scipy matplotlib ipykernel jupyterlab -y
-conda activate causal
-```
-
-Create a course folder:
-
-```powershell
-mkdir %USERPROFILE%\causal-course
-cd %USERPROFILE%\causal-course
-```
-
-To use `conda` from other terminals too (including the one inside Visual Studio Code), run `conda init` once in Miniforge Prompt.
-
-:::
-
 ## Step 5. Check 1 — run a Python file
 
 In Visual Studio Code, choose **File → Open Folder…** and open `causal-course`. Create a file named `check_setup.py`:
@@ -128,7 +95,7 @@ print("matplotlib", matplotlib.__version__)
 print("All set!")
 ```
 
-Click **Select Interpreter** in the bottom-right corner and choose your course environment (`.venv` or `causal`). Then click the **▶ Run** button at the top right. **Take screenshot 1.**
+Click **Select Interpreter** in the bottom-right corner and choose your course environment (the one inside `causal-course/.venv`). Then click the **▶ Run** button at the top right. **Take screenshot 1.**
 
 ## Step 6. Check 2 — run a notebook
 
@@ -169,7 +136,6 @@ A browser tab opens. Open `first_notebook.ipynb` there and run it again. To stop
 |---|---|---|
 | `uv` or `git` is not recognized | PowerShell was not restarted | Close and reopen PowerShell. |
 | "running scripts is disabled on this system" | PowerShell's execution policy | `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` |
-| `conda` is not recognized in PowerShell | conda is only set up in Miniforge Prompt | Use Miniforge Prompt, or run `conda init` there once. |
-| The notebook cannot find `numpy` | The wrong kernel is selected | **Select Kernel** → choose `.venv` or `causal`. |
+| The notebook cannot find `numpy` | The wrong kernel is selected | **Select Kernel** → choose the one inside `causal-course/.venv`. |
 
 Still stuck after an hour? Stop, and come to class — we will use **GitHub Codespaces** in the browser.
