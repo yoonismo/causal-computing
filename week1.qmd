@@ -111,53 +111,85 @@ Because notebook cells can run in any order, always check a finished notebook by
 
 ## Lab 1 — Planted bugs
 
-1. Open the [`week1-starter`](https://github.com/yoonismo/week1-starter) repository on GitHub and click **Use this template** → **Create a new repository** in *your* account.
-2. Clone *your* copy, and open the **folder** (not just one file) in Visual Studio Code.
-3. Open `week1.ipynb`, select your course kernel, and run the cells in order.
+1. Open the [`week1-starter`](https://github.com/yoonismo/week1-starter) repository on GitHub and click **Use this template** → **Create a new repository**. Create it in *your* account and name it `week1`.
+2. On *your* new repository, click the green **Code** button and copy the HTTPS address. For a student whose GitHub username is `jdoe`, it is `https://github.com/jdoe/week1.git`.
+3. In the Terminal, move into your course folder:
 
-The notebook defines the function $f(x) = x^2$ in two ways:
+    ```bash
+    cd ~/causal-course
+    ```
 
-```python
-def squared(x):
-    return x * 2
+    Windows:
 
-squared_lambda = lambda x: x ** 2
-```
+    ```powershell
+    cd ~\causal-course
+    ```
 
-**Questions to answer as you go**
+4. Clone your copy (use **your own** address):
 
-- `squared(2)` and `squared_lambda(2)` both return `4`. Does that mean both functions are correct?
-- What do the two plots look like on the interval $[-3, 3]$?
-- What happens when you call `squared_lambda([1, 2, 3])`? And `squared([1, 2, 3])`? Which of the two is more dangerous, and why?
-- What changes when you use `np.array([1, 2, 3])` instead of a list?
+    ```bash
+    git clone https://github.com/jdoe/week1.git
+    ```
 
-**Using an LLM — explain only.** Paste the function and your plot into a chat and ask:
+5. In Visual Studio Code, choose **File → Open Folder…** and open the new `week1` folder (the folder, not just one file).
+6. Open `week1.ipynb`. Click **Select Kernel** → **Jupyter Kernel…** → **ECON 481 (Python 3.12)**.
+7. Run the cells in order and answer the questions in the notebook:
+    - **Question 1.** At what values of $x$ does $2x = x^2$? Solve it **by hand**.
+    - **Question 2.** If two functions agree at some values, are they the same function?
+    - **Question 3.** Ask an LLM how to write "$x$ squared" in Python. Ask it to **explain, not to rewrite** the notebook.
+    - **Question 4.** The check cell passes. Is that good news?
 
-> *Explain in plain language why these two functions give the same value at x = 2 but different plots. Do not rewrite the code.*
+    The last section of the notebook, *lists versus arrays*, is optional. We will come back to it in Week 2.
 
 ## Lab 2 — Fix, commit, push
 
-1. The notebook's last cell checks the function at a single point: `assert squared(2) == 4`. Replace it with a check at many points:
+1. The notebook's **Check** cell tests the function at a single point: `assert squared(2) == 4`. Replace it with a check at all 61 points of `grid`:
 
     ```python
-    grid = np.linspace(-3, 3, 61)
     assert np.allclose(squared(grid), grid ** 2)
     ```
 
     Run it. It fails — good.
 
 2. Fix `squared`. Then **Restart Kernel → Run All**.
-3. **Clear All Outputs** before committing (outputs and embedded images make notebook changes unreadable in Git).
-4. In the terminal:
+3. **Clear All Outputs**, then save the notebook (**⌘ S**; Windows: **Ctrl + S**).
+4. In the Terminal, move into your repository:
+
+    ```bash
+    cd ~/causal-course/week1
+    ```
+
+    Windows:
+
+    ```powershell
+    cd ~\causal-course\week1
+    ```
+
+5. See what changed:
 
     ```bash
     git status
+    ```
+
+6. Choose the file to record:
+
+    ```bash
     git add week1.ipynb
+    ```
+
+7. Record it with a message:
+
+    ```bash
     git commit -m "Fix squared() and strengthen the check"
+    ```
+
+8. Send it to GitHub:
+
+    ```bash
     git push
     ```
 
-5. On GitHub, open the **Actions** tab and watch the workflow run.
+9. On GitHub, open the **Actions** tab and watch the workflow run.
 
 ::: {.callout-tip}
 ## Lesson
@@ -166,9 +198,26 @@ An automatic check catches only what you ask it to check. The one-point check wo
 
 ## Lab 3 — A deliberate red X
 
-1. Next week we use `pandas`. Install it **only on your own machine**: `uv pip install pandas`
-2. Add `import pandas as pd` to the first cell. The notebook runs on your laptop.
-3. Commit and push. On GitHub, the check **fails**: `ModuleNotFoundError: No module named 'pandas'`.
+1. Next week we use `pandas`. Install it **only on your own machine**, into the course environment. First, activate the course environment:
+
+    ```bash
+    source ~/causal-course/.venv/bin/activate
+    ```
+
+    Windows:
+
+    ```powershell
+    ~\causal-course\.venv\Scripts\activate
+    ```
+
+    Then install pandas:
+
+    ```bash
+    uv pip install pandas
+    ```
+
+2. Add `import pandas as pd` to the first code cell. The notebook runs on your laptop.
+3. Commit and push, as in Lab 2. On GitHub, the check **fails**: `ModuleNotFoundError: No module named 'pandas'`.
 4. Open the failed run and read the log. Ask an LLM to explain the error — **without** changing any files.
 5. Add `pandas` to `requirements.txt`. Commit, push, and watch it turn green.
 
@@ -180,7 +229,13 @@ An automatic check catches only what you ask it to check. The one-point check wo
 ## Lab 4 — Pull
 
 1. On the GitHub website, edit `README.md` (add your name) and commit it there.
-2. On your laptop, run `git pull` and check that the change arrived.
+2. On your laptop, inside your repository, bring that change down:
+
+    ```bash
+    git pull
+    ```
+
+3. Check that `README.md` now shows your name.
 
 When other people may also change the repository, remember the order:
 
