@@ -55,16 +55,30 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 uv --version
 ```
 
-Create a course folder and move into it:
+Create a course folder:
 
 ```powershell
 mkdir ~\causal-course
 ```
 
+Or create it in your own path:
+
+```powershell
+mkdir C:\Users\your_id\Desktop\your\own\path
+```
+
+If your Desktop is synced with OneDrive, the path starts with `C:\Users\your_id\OneDrive\Desktop` instead.
+
 Move into it:
 
 ```powershell
 cd ~\causal-course
+```
+
+If you used your own path, move into that folder instead:
+
+```powershell
+cd C:\Users\your_id\Desktop\your\own\path
 ```
 
 Create the environment — the separate "room" for this course. uv downloads Python for you if needed:
