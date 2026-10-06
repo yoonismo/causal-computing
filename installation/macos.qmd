@@ -66,6 +66,12 @@ Create a course folder:
 mkdir ~/causal-course
 ```
 
+Or create it in your own path: 
+
+```bash
+mkdir /Users/your_id/Desktop/your/own/path
+```
+
 Move into it:
 
 ```bash
