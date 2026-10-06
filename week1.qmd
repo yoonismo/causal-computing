@@ -116,13 +116,13 @@ Because notebook cells can run in any order, always check a finished notebook by
 3. In the Terminal, move into your course folder:
 
     ```bash
-    cd ~/causal-course
+    cd ~/ECON481
     ```
 
     Windows:
 
     ```powershell
-    cd ~\causal-course
+    cd ~\ECON481
     ```
 
 4. Clone your copy (use **your own** address):
@@ -156,13 +156,13 @@ Because notebook cells can run in any order, always check a finished notebook by
 4. In the Terminal, move into your repository:
 
     ```bash
-    cd ~/causal-course/week1
+    cd ~/ECON481/week1
     ```
 
     Windows:
 
     ```powershell
-    cd ~\causal-course\week1
+    cd ~\ECON481\week1
     ```
 
 5. See what changed:
@@ -201,13 +201,13 @@ An automatic check catches only what you ask it to check. The one-point check wo
 1. Next week we use `pandas`. Install it **only on your own machine**, into the course environment. First, activate the course environment:
 
     ```bash
-    source ~/causal-course/.venv/bin/activate
+    source ~/ECON481/.venv/bin/activate
     ```
 
     Windows:
 
     ```powershell
-    ~\causal-course\.venv\Scripts\activate
+    ~\ECON481\.venv\Scripts\activate
     ```
 
     Then install pandas:
