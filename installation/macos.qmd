@@ -28,11 +28,18 @@ git --version
 xcode-select --install
 ```
 
-Tell Git who you are (use the email of your GitHub account):
+Tell Git who you are. Use **your own** name and the email address of **your GitHub account**. For example, a student named Jane Doe whose GitHub email is `jdoe@uw.edu` would type the two commands below.
+
+Your name:
 
 ```bash
-git config --global user.name "Your Name"
-git config --global user.email "you@example.com"
+git config --global user.name "Jane Doe"
+```
+
+Your email:
+
+```bash
+git config --global user.email "jdoe@uw.edu"
 ```
 
 ## Step 3. Create a GitHub account
@@ -53,10 +60,15 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 uv --version
 ```
 
-Create a course folder and move into it:
+Create a course folder:
 
 ```bash
 mkdir ~/causal-course
+```
+
+Move into it:
+
+```bash
 cd ~/causal-course
 ```
 
@@ -72,10 +84,15 @@ Look inside the folder: a hidden folder named `.venv` has appeared. That *is* th
 ls -a
 ```
 
-Enter the environment and install the packages into it:
+Enter the environment:
 
 ```bash
 source .venv/bin/activate
+```
+
+Install the packages into it:
+
+```bash
 uv pip install numpy scipy matplotlib ipykernel jupyterlab
 ```
 
@@ -96,7 +113,9 @@ print("matplotlib", matplotlib.__version__)
 print("All set!")
 ```
 
-Click **Select Interpreter** in the bottom-right corner and choose your course environment (the one inside `causal-course/.venv`). Then click the **▶ Run** button at the top right. **Take screenshot 1.**
+If you see **Restricted Mode** in the bottom-left corner of Visual Studio Code, click it and choose **Trust**. Otherwise the Python features stay turned off.
+
+Click **Select Interpreter** in the bottom-right corner and choose your course environment (the one inside `causal-course/.venv`). Then click the **▶ Run** button at the top right. You should see the version numbers and `All set!` in the terminal.
 
 ## Step 6. Check 2 — run a notebook
 
@@ -112,7 +131,9 @@ plt.title("If you can see a parabola, your setup works")
 plt.show()
 ```
 
-Press **Shift + Return** to run it. **Take screenshot 2.**
+Press **Shift + Return** to run it. You should see a parabola.
+
+Save the notebook with **⌘ S**. JupyterLab in the next step can only open a saved notebook.
 
 ## Step 7. Check 3 — JupyterLab (optional)
 
@@ -129,7 +150,7 @@ A browser tab opens. Open `first_notebook.ipynb` there and run it again. To stop
 1. Make a new, empty folder named `github-test` and open it in Visual Studio Code.
 2. Create a file `README.md` containing one line, for example `Hello, GitHub`.
 3. Click the **Source Control** icon on the left (a branching line), then **Publish to GitHub**. Sign in when asked, and choose a public repository.
-4. Open the repository on github.com. **Take screenshot 3.**
+4. Open the repository on github.com and check that `README.md` is there.
 
 ## Troubleshooting
 
@@ -139,5 +160,3 @@ A browser tab opens. Open `first_notebook.ipynb` there and run it again. To stop
 | The notebook cannot find `numpy` | The wrong kernel is selected | **Select Kernel** → choose the one inside `causal-course/.venv`. |
 | Several Pythons appear in **Select Interpreter** | macOS ships its own Python | Choose the one inside `causal-course/.venv`. |
 | `xcode-select` says it is already installed | Git is already there | Skip to `git --version`. |
-
-Still stuck after an hour? Stop, and come to class — we will use **GitHub Codespaces** in the browser.

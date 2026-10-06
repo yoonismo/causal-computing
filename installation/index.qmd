@@ -44,15 +44,3 @@ We deliberately start small and add packages as the course needs them.
 | `matplotlib` | Plots |
 | `ipykernel` | Lets notebooks run code in your course environment |
 | `jupyterlab` | A browser-based notebook interface (optional alternative to Visual Studio Code) |
-
-## What to submit
-
-Three screenshots:
-
-1. The output of the setup-check script (Python and package versions).
-2. The parabola plot from your first notebook.
-3. Your test repository on GitHub after your first push.
-
-## If nothing works
-
-Do not spend more than an hour stuck. Come to class anyway: you can work in **GitHub Codespaces**, a browser version of Visual Studio Code, while we fix your installation.
