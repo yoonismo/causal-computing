@@ -166,9 +166,7 @@ An automatic check catches only what you ask it to check. The one-point check wo
 
 ## Lab 3 — A deliberate red X
 
-1. Next week we use `pandas`. Install it **only on your own machine**:
-    - uv: `uv pip install pandas`
-    - conda: `conda install pandas`
+1. Next week we use `pandas`. Install it **only on your own machine**: `uv pip install pandas`
 2. Add `import pandas as pd` to the first cell. The notebook runs on your laptop.
 3. Commit and push. On GitHub, the check **fails**: `ModuleNotFoundError: No module named 'pandas'`.
 4. Open the failed run and read the log. Ask an LLM to explain the error — **without** changing any files.
