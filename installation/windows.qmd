@@ -218,6 +218,17 @@ Then, in Visual Studio Code:
 | "running scripts is disabled on this system" | PowerShell's execution policy | `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` |
 | The notebook cannot find `numpy` | The wrong kernel is selected | **Select Kernel** → **Jupyter Kernel…** → **ECON 481 (Python 3.12)**. If it is not listed, press **⌘ Shift P** (Windows: **Ctrl + Shift + P**), run `Developer: Reload Window`, and try again. |
 
----
-
-**Next:** [Week 1: Tools of Reproducible Work →](../week1.qmd)
+```{=html}
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="index.html" class="pagination-link" aria-label="Installation">
+        <i class="bi bi-arrow-left-short"></i> <span>Installation</span>
+      </a>
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../week1.html" class="pagination-link" aria-label="Week 1: Tools of Reproducible Work">
+        <span>Week 1: Tools of Reproducible Work</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+```

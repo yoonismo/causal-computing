@@ -218,6 +218,17 @@ Then, in Visual Studio Code:
 | Several Pythons appear in **Select Interpreter** | macOS ships its own Python | Choose the one inside `causal-course/.venv`. |
 | `xcode-select` says it is already installed | Git is already there | Skip to `git --version`. |
 
----
-
-**Next:** [Week 1: Tools of Reproducible Work →](../week1.qmd)
+```{=html}
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="index.html" class="pagination-link" aria-label="Installation">
+        <i class="bi bi-arrow-left-short"></i> <span>Installation</span>
+      </a>
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../week1.html" class="pagination-link" aria-label="Week 1: Tools of Reproducible Work">
+        <span>Week 1: Tools of Reproducible Work</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+```
