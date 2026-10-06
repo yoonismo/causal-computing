@@ -15,3 +15,10 @@ Start with the Installation guide for your operating system, then follow the wee
 | More weeks | Added as the course progresses. |
 
 : {tbl-colwidths="[22,78]"}
+
+## Teaching assistant
+
+- **Name:** Yoon Choi
+- **Email:** [lemineml@uw.edu](mailto:lemineml@uw.edu)
+- **Office hours:** Tuesday, 02:00 ~ 04:00 pm (Pacific Time), SAV 403 or Zoom
+- **Zoom link:** TBD
