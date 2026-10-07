@@ -47,7 +47,7 @@ That freedom is also the risk: because cells can run in any order, always check 
 Think of Git as keeping a **recipe notebook** while you develop a chocolate chip cookie recipe:
 
 - **Working directory**: your kitchen. You try things out here: more sugar, maybe coconut chips. Every edit you save lands here first.
-- **Staging area**: the counter. `git add week1.ipynb` sets out what you have decided to include in this version of the recipe. Nothing is written down yet, and you can still put things back.
+- **Staging area**: the counter. `git add filename.extension` sets out what you have decided to include in this version of the recipe. Nothing is written down yet, and you can still put things back.
 - **Local history**: your recipe notebook. `git commit` writes down everything on the counter as a new version, with a note such as "less sugar, no coconut". Earlier versions stay in the notebook, so you can always go back to one.
 - **GitHub**: your recipe blog. `git push` posts the versions in your notebook. Only written-down versions can be posted, never what is still on the counter.
 
