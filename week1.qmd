@@ -204,6 +204,8 @@ So the order is always: edit and save → `git add` → `git commit` → `git pu
 
 9. On GitHub, open the **Actions** tab and watch the workflow run.
 
+What you just saw has a name: **continuous integration**. Every time you push, GitHub starts a fresh computer, installs the packages in `requirements.txt`, and runs your notebook from top to bottom. A green check means it ran; a red X means something failed.
+
 ::: {.callout-tip}
 ## Lesson
 An automatic check catches only what you ask it to check. The one-point check would have passed with the bug still in place.
