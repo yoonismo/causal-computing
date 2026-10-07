@@ -12,20 +12,16 @@ After this class, you will be able to:
 - push your commits to GitHub, and
 - check the automatic test result on GitHub Actions.
 
-## A map of the tools
+## What Visual Studio Code does
 
-The tools are related in four different ways, not in one straight line.
+Visual Studio Code is a **code editor**: one window where you write code, run it, see the results, and record your changes. In this course you use it to:
 
-| Relationship | Chain |
-|---|---|
-| **Running a Python file** | Visual Studio Code → Python extension → Python interpreter → output in the terminal |
-| **Running a notebook** | Visual Studio Code → Jupyter extension → kernel (`ipykernel`) → output under the cell |
-| **Version control** | Visual Studio Code's Source Control view → Git on your computer → *local* repository ⇄ *remote* repository on GitHub |
-| **Automatic checking** | push → GitHub repository → GitHub Actions runs the workflow on a fresh machine → green check or red X |
+- write Python files (`.py`) and notebooks (`.ipynb`),
+- run them and see the output,
+- type commands in its built-in terminal,
+- see what changed in your files and send those changes to GitHub.
 
-: {tbl-colwidths="[24,76]"}
-
-Visual Studio Code is the workspace that connects these tools. It does **not** replace the Python interpreter, the Jupyter kernel, or Git.
+Visual Studio Code does not run Python by itself. It hands your code to the Python in your course environment. The name in the bottom-right corner (for a `.py` file) or the top-right corner (for a notebook) tells you which Python that is.
 
 ### Python file versus notebook
 
@@ -34,10 +30,11 @@ Visual Studio Code is the workspace that connects these tools. It does **not** r
 | Extension | `.py` | `.ipynb` |
 | Runs | The whole file, top to bottom | One cell at a time, in any order |
 | Stores | Code only | Code, text, math, plots, and outputs |
+| Good for | Running a whole analysis the same way, start to finish | Running a few lines at a time and seeing each result right away |
 
 : {tbl-colwidths="[16,42,42]"}
 
-Because notebook cells can run in any order, always check a finished notebook by **Restart Kernel → Run All**.
+That freedom is also the risk: because cells can run in any order, always check a finished notebook by **Restart Kernel → Run All**.
 
 ### Git versus GitHub
 
@@ -46,6 +43,15 @@ Because notebook cells can run in any order, always check a finished notebook by
 | Software on your computer | A website that hosts repositories |
 | Records the history of your changes (`add`, `commit`) | Stores pushed commits, shares them, and runs automatic checks |
 | Works offline | Needs the internet |
+
+Think of Git as keeping a **recipe notebook** while you develop a chocolate chip cookie recipe:
+
+- **Working directory**: your kitchen. You try things out here: more sugar, maybe coconut chips. Every edit you save lands here first.
+- **Staging area**: the counter. `git add week1.ipynb` sets out what you have decided to include in this version of the recipe. Nothing is written down yet, and you can still put things back.
+- **Local history**: your recipe notebook. `git commit` writes down everything on the counter as a new version, with a note such as "less sugar, no coconut". Earlier versions stay in the notebook, so you can always go back to one.
+- **GitHub**: your recipe blog. `git push` posts the versions in your notebook. Only written-down versions can be posted, never what is still on the counter.
+
+So the order is always: edit and save → `git add` → `git commit` → `git push`.
 
 ::: {.git-diagram}
 ```{=html}
