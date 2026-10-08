@@ -1,0 +1,248 @@
+---
+title: "Week 2: From Experiments to Observational Data"
+subtitle: "What randomization buys you, seen in simulated and real data"
+draft: true
+---
+
+::: {.callout-warning}
+## Rough draft
+This page is a work in progress and not yet released to students.
+:::
+
+## Goal for today
+
+After this class, you will be able to:
+
+- simulate a world in which **both** potential outcomes are known, so the true effect is known,
+- estimate an average treatment effect from a randomized experiment and report its standard error,
+- check covariate balance between groups, and
+- explain, with numbers, why comparing treated people with *other* people can give the wrong answer.
+
+## Potential outcomes in one paragraph
+
+Each person $i$ has two potential outcomes: $Y_i(1)$ if treated and $Y_i(0)$ if not. We only ever see one of them:
+
+$$
+Y_i = D_i \, Y_i(1) + (1 - D_i) \, Y_i(0),
+$$
+
+where $D_i = 1$ if person $i$ is treated. The **average treatment effect** is
+
+$$
+\text{ATE} = E[Y(1) - Y(0)].
+$$
+
+The **average treatment effect on the treated** is $\text{ATT} = E[Y(1) - Y(0) \mid D = 1]$.
+
+In real data, half of the potential outcomes are missing. In a simulation, we create both, so we know the truth and can check our estimators against it.
+
+## Lab 1 — A world where we know the truth
+
+### 1.1 Create both potential outcomes
+
+```python
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+rng = np.random.default_rng(481)
+n = 1000
+
+y0 = rng.normal(loc=10, scale=3, size=n)       # outcome without treatment
+effect = rng.normal(loc=2, scale=1, size=n)    # each person's own effect
+y1 = y0 + effect                               # outcome with treatment
+
+print("True ATE:", effect.mean().round(3))
+```
+
+**Question 1.** Why can we compute the true ATE here, but never in real data?
+
+### 1.2 Randomize once
+
+```python
+d = rng.permutation(np.repeat([1, 0], n // 2))   # half treated, at random
+y = d * y1 + (1 - d) * y0                         # what we would observe
+
+print("Difference in means:", (y[d == 1].mean() - y[d == 0].mean()).round(3))
+```
+
+**Question 2.** The estimate is not exactly the true ATE. Is the estimator wrong?
+
+### 1.3 Randomize many times
+
+Instead of a `for` loop, build all assignments at once: one row per experiment.
+
+```python
+reps = 2000
+D = rng.permuted(np.tile(np.repeat([1, 0], n // 2), (reps, 1)), axis=1)
+Y = D * y1 + (1 - D) * y0
+
+estimates = (Y * D).sum(axis=1) / D.sum(axis=1) - (Y * (1 - D)).sum(axis=1) / (1 - D).sum(axis=1)
+
+plt.hist(estimates, bins=40)
+plt.axvline(effect.mean(), color="red", label="true ATE")
+plt.legend()
+plt.show()
+```
+
+**Question 3.** Where is the centre of the histogram? What does that tell you about the difference in means under random assignment?
+
+### 1.4 Now let people choose
+
+People with low earnings without treatment are more likely to sign up.
+
+```python
+p = 1 / (1 + np.exp((y0 - 10) / 2))     # lower y0 -> higher chance of treatment
+d_sel = rng.binomial(1, p)
+y_sel = d_sel * y1 + (1 - d_sel) * y0
+
+naive = y_sel[d_sel == 1].mean() - y_sel[d_sel == 0].mean()
+att = (y1 - y0)[d_sel == 1].mean()
+selection_bias = y0[d_sel == 1].mean() - y0[d_sel == 0].mean()
+
+print("Naive difference:", naive.round(3))
+print("ATT:             ", att.round(3))
+print("Selection bias:  ", selection_bias.round(3))
+print("ATT + bias:      ", (att + selection_bias).round(3))
+```
+
+**Question 4.** The naive difference is negative although every effect is centred at 2. Which line explains why? Check that the last two lines add up.
+
+## Lab 2 — A real experiment: the National Supported Work Demonstration
+
+In the 1970s, the National Supported Work (NSW) program offered work experience to people facing serious disadvantage in the labour market. Among eligible applicants, it **randomly** decided who joined the program. We use the sample studied by Dehejia and Wahba (1999): 185 treated and 260 control men. The outcome `re78` is earnings in 1978, in US dollars.
+
+```python
+from causaldata import nsw_mixtape
+
+nsw = nsw_mixtape.load_pandas().data
+treated = nsw[nsw["treat"] == 1]
+control = nsw[nsw["treat"] == 0]
+
+diff = treated["re78"].mean() - control["re78"].mean()
+se = np.sqrt(treated["re78"].var() / len(treated) + control["re78"].var() / len(control))
+
+print("Difference in means:", diff.round(1))
+print("Standard error:     ", se.round(1))
+print("95% interval:       ", (diff - 1.96 * se).round(1), "to", (diff + 1.96 * se).round(1))
+```
+
+You should get a difference of about **1,794 dollars**, with a standard error of about 671.
+
+### Balance check
+
+Randomization should make the groups similar **before** treatment.
+
+```python
+covariates = ["age", "educ", "black", "hisp", "marr", "nodegree", "re74", "re75"]
+
+balance = pd.DataFrame({
+    "treated": treated[covariates].mean(),
+    "control": control[covariates].mean(),
+})
+balance["std. diff."] = (balance["treated"] - balance["control"]) / np.sqrt(
+    (treated[covariates].var() + control[covariates].var()) / 2
+)
+balance.round(2)
+```
+
+**Question 5.** Most standardized differences are small, but `nodegree` is about −0.30. Does that mean the randomization failed?
+
+## Lab 3 — Swap the control group
+
+Suppose there had been no experiment. We only have the 185 trained men, and we compare them with men from a national survey, the Current Population Survey (CPS). LaLonde (1986) did exactly this, to see whether non-experimental methods could recover the experimental answer.
+
+```python
+from causaldata import cps_mixtape
+
+cps = cps_mixtape.load_pandas().data
+print("Treated minus CPS:", (treated["re78"].mean() - cps["re78"].mean()).round(1))
+```
+
+The answer is now about **−8,498 dollars**: the program seems to *destroy* earnings.
+
+```python
+pd.DataFrame({
+    "NSW treated": treated[covariates].mean(),
+    "NSW control": control[covariates].mean(),
+    "CPS": cps[covariates].mean(),
+}).round(2)
+```
+
+**Question 6.** Use the decomposition from Lab 1.4. Taking 1,794 as the ATT, how large is the selection bias? Which rows of the table explain its sign?
+
+### What if we keep only CPS men who look like the trainees?
+
+```python
+groups = {
+    "all CPS": cps,
+    "CPS, re75 below 5,000": cps[cps["re75"] < 5000],
+    "CPS, no earnings in 1974 and 1975": cps[(cps["re74"] == 0) & (cps["re75"] == 0)],
+}
+for label, comparison in groups.items():
+    gap = treated["re78"].mean() - comparison["re78"].mean()
+    print(f"{label:35s} n = {len(comparison):6d}   gap = {gap:9.1f}")
+```
+
+| Comparison group | n | Treated minus comparison |
+|---|---|---|
+| All CPS | 15,992 | −8,498 |
+| CPS, 1975 earnings below 5,000 | 4,231 | +127 |
+| CPS, no earnings in 1974 and 1975 | 1,181 | +3,402 |
+| NSW random control (the experiment) | 260 | +1,794 |
+
+: {tbl-colwidths="[52,14,34]"}
+
+**Question 7.** The answer moves a lot depending on which rule you pick. What would a *principled* way of choosing comparison people need to do?
+
+### The same idea in a simulation
+
+When we know what drives selection, comparing within groups of similar people recovers the truth.
+
+```python
+rng = np.random.default_rng(2)
+n = 20000
+low = rng.binomial(1, 0.5, n)                                  # 1 = low earnings before the program
+y0 = np.where(low == 1, 3000, 12000) + rng.normal(0, 2000, n)
+y1 = y0 + 1500                                                 # true effect: 1,500 for everyone
+d = rng.binomial(1, np.where(low == 1, 0.30, 0.02))            # low earners sign up far more often
+y = d * y1 + (1 - d) * y0
+
+print("Naive:", (y[d == 1].mean() - y[d == 0].mean()).round(1))
+for g in [0, 1]:
+    m = low == g
+    print(f"Within low = {g}:", (y[m & (d == 1)].mean() - y[m & (d == 0)].mean()).round(1))
+```
+
+The naive difference is about −3,200; within each group it is close to 1,500. In the NSW data, we do not know everything that drives selection. That is the problem of Weeks 3 and 4.
+
+## After the tutorial: practise on your own
+
+Coming soon: repeat Labs 2 and 3 on the Tennessee STAR class-size experiment.
+
+## References
+
+### Data
+
+- Dehejia, R. H., and Wahba, S. (1999). Causal effects in nonexperimental studies: Reevaluating the evaluation of training programs. *Journal of the American Statistical Association*, 94(448), 1053–1062.
+- LaLonde, R. J. (1986). Evaluating the econometric evaluations of training programs with experimental data. *American Economic Review*, 76(4), 604–620.
+- Huntington-Klein, N. *causaldata*: Example Data Sets for Causal Inference (Python package, version 0.1.5, MIT license). <https://pypi.org/project/causaldata/>
+- Krueger, A. B. (1999). Experimental estimates of education production functions. *Quarterly Journal of Economics*, 114(2), 497–532.
+- Stock, J. H., and Watson, M. W. (2007). *Introduction to Econometrics*, 2nd ed. Addison Wesley. (Source of the STAR data as distributed in the R package AER: <https://vincentarelbundock.github.io/Rdatasets/doc/AER/STAR.html>)
+
+### Potential outcomes and experiments
+
+- Angrist, J. D., and Pischke, J.-S. (2009). *Mostly Harmless Econometrics: An Empiricist's Companion*. Princeton University Press. Chapter 2.
+- Holland, P. W. (1986). Statistics and causal inference. *Journal of the American Statistical Association*, 81(396), 945–960.
+- Imbens, G. W., and Rubin, D. B. (2015). *Causal Inference for Statistics, Social, and Biomedical Sciences: An Introduction*. Cambridge University Press.
+- Neyman, J. (1923/1990). On the application of probability theory to agricultural experiments. Essay on principles. Section 9. *Statistical Science*, 5(4), 465–472.
+- Rubin, D. B. (1974). Estimating causal effects of treatments in randomized and nonrandomized studies. *Journal of Educational Psychology*, 66(5), 688–701.
+- Hernán, M. A., and Robins, J. M. *Causal Inference: What If*. <https://miguelhernan.org/whatifbook>
+- Cunningham, S. *Causal Inference: The Mixtape*. <https://mixtape.scunning.com/>
+- Perković, E. (2026). *Lecture 1: Introduction to Causal Modeling and Randomized Experiments* and *Lab 1: Potential Outcomes and Randomized Experiments*. Lecture notes, Causal Modeling, Spring 2026.
+
+### From LaLonde to today
+
+- Imbens, G. W., and Xu, Y. Comparing experimental and nonexperimental methods: What lessons have we learned four decades after LaLonde (1986)? arXiv:2406.00827 (version 3, 27 May 2025; listed as forthcoming in the *Journal of Economic Perspectives*). <https://arxiv.org/abs/2406.00827>
+- Tutorial for "LaLonde (1986) after Nearly Four Decades: Lessons Learned". <https://yiqingxu.org/tutorials/lalonde/>
+- Smith, J. A., and Todd, P. E. (2005). Does matching overcome LaLonde's critique of nonexperimental estimators? *Journal of Econometrics*, 125(1–2), 305–353.
