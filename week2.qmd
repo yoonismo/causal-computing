@@ -1,7 +1,6 @@
 ---
 title: "Week 2: From Experiments to Observational Data"
 subtitle: "What randomization buys you, seen in simulated and real data"
-draft: true
 ---
 
 ## Goal for today
