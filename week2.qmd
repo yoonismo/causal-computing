@@ -12,6 +12,49 @@ After this class, you will be able to:
 - check covariate balance between groups, and
 - explain, with numbers, why comparing treated people with *other* people can give the wrong answer.
 
+## Get the starter repository
+
+All the code on this page is in the notebook `week2.ipynb` in the [`week2-starter`](https://github.com/yoonismo/week2-starter) repository. Make your own copy the same way as in Week 1, Lab 1.
+
+1. Open the [`week2-starter`](https://github.com/yoonismo/week2-starter) repository on GitHub and click **Use this template** → **Create a new repository**. Create it in *your* account and name it `week2`.
+2. On *your* new repository, click the green **Code** button and copy the HTTPS address. For a student whose GitHub username is `jdoe`, it is `https://github.com/jdoe/week2.git`.
+3. In the Terminal, move into your course folder:
+
+    ```bash
+    cd ~/ECON481
+    ```
+
+    Windows:
+
+    ```powershell
+    cd ~\ECON481
+    ```
+
+4. Clone your copy (use **your own** address):
+
+    ```bash
+    git clone https://github.com/jdoe/week2.git
+    ```
+
+5. This week needs three packages that Week 1 did not use. Activate the course environment and install them:
+
+    ```bash
+    source ~/ECON481/.venv/bin/activate
+    uv pip install pandas causaldata statsmodels
+    ```
+
+    Windows:
+
+    ```powershell
+    ~\ECON481\.venv\Scripts\activate
+    uv pip install pandas causaldata statsmodels
+    ```
+
+6. In Visual Studio Code, choose **File → Open Folder…** and open the new `week2` folder (the folder, not just one file).
+7. Open `week2.ipynb`. Click **Select Kernel** → **Jupyter Kernel…** → **ECON 481 (Python 3.12)**.
+
+Run the cells in order as you read this page, and write your answers to the questions in the notebook. The notebook downloads the data from the internet, so you need a connection.
+
 ## Potential outcomes in one paragraph
 
 Each person $i$ has two potential outcomes: $Y_i(1)$ if treated and $Y_i(0)$ if not. We only ever see one of them:
@@ -415,7 +458,9 @@ Estimated ATE: 2.0
 
 ## After the tutorial: practise on your own
 
-Coming soon: repeat Labs 2 and 3 on the Tennessee STAR class-size experiment.
+Open `star_practice.ipynb` in your `week2` repository. It repeats Labs 2 and 3 on the Tennessee STAR class-size experiment: you analyse a real experiment, then see what goes wrong when families choose. Cells marked `# TODO` are yours; each is followed by a check cell.
+
+When you finish, clear all outputs, then `git add`, `git commit` and `git push`, as in Week 1, Lab 2. The **Actions** tab should turn green.
 
 ## References
 
