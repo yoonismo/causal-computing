@@ -10,7 +10,7 @@ After this class, you will be able to:
 - simulate a world in which **both** potential outcomes are known, so the true effect is known,
 - estimate an average treatment effect from a randomized experiment and report its standard error,
 - check covariate balance between groups, and
-- explain, with numbers, why comparing treated people with *other* people can give the wrong answer.
+- explain, with numbers, why naïvely comparing treated people with *other* people can give the wrong answer.
 
 ## Get the starter repository
 
