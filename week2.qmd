@@ -196,14 +196,14 @@ How can we find the standard error of $\hat{\tau}_{\text{ATE}}$? First, we compu
 
 $$
 \begin{align*}
-\hat{S}_1^2 =& \widehat{\text{Var}}[Y_i | D_i = 1] = \frac{1}{n_1-1} \sum_{i \in \text{treated}} (Y_i - \overline{Y}_1)^2\\ 
-\hat{S}_0^2 =& \widehat{\text{Var}}[Y_i | D_i = 0] = \frac{1}{n_0-1} \sum_{i \in \text{control}} (Y_i - \overline{Y}_0)^2
+s_1^2 =& \widehat{\text{Var}}[Y_i | D_i = 1] = \frac{1}{n_1-1} \sum_{i \in \text{treated}} (Y_i - \overline{Y}_1)^2\\ 
+s_0^2 =& \widehat{\text{Var}}[Y_i | D_i = 0] = \frac{1}{n_0-1} \sum_{i \in \text{control}} (Y_i - \overline{Y}_0)^2
 \end{align*}
 $$
 
 $$
 \begin{align*}
-\widehat{\text{Var}}[\hat{\tau}_{\text{ATE}}] &= \frac{\hat{S}_1^2}{n_1} + \frac{\hat{S}_0^2}{n_0} & \text{SE} &= \sqrt{\widehat{\text{Var}}[\hat{\tau}_{\text{ATE}}]}
+\widehat{\text{Var}}[\hat{\tau}_{\text{ATE}}] &= \frac{s_1^2}{n_1} + \frac{s_0^2}{n_0} & \text{SE}_{\text{ATE}} &= \sqrt{\widehat{\text{Var}}[\hat{\tau}_{\text{ATE}}]}
 \end{align*}
 $$
 
