@@ -225,7 +225,7 @@ where $C_{0.975} \approx 1.96$ is the 97.5% quantile of the standard normal dist
 
 ```python
 quantile_975 = norm.ppf(0.975)
-print("95% interval: ", (diff -  quantile_975* se).round(1), "to", (diff + quantile_975 * se).round(1))
+print("95% interval: ", (diff -  quantile_975* se).round(3), "to", (diff + quantile_975 * se).round(3))
 ```
 
 ```
@@ -244,9 +244,9 @@ control = nsw[nsw["treat"] == 0]
 diff = treated["re78"].mean() - control["re78"].mean()
 se = np.sqrt(treated["re78"].var() / len(treated) + control["re78"].var() / len(control))
 
-print("Difference in means:", diff.round(1))
-print("Standard error:     ", se.round(1))
-print("95% interval:       ", (diff - 1.96 * se).round(1), "to", (diff + 1.96 * se).round(1))
+print("Difference in means:", diff.round(3))
+print("Standard error:     ", se.round(3))
+print("95% interval:       ", (diff - 1.96 * se).round(3), "to", (diff + 1.96 * se).round(3))
 ```
 
 ```
@@ -268,9 +268,9 @@ import statsmodels.formula.api as smf
 
 model = smf.ols("re78 ~ treat", data=nsw).fit(cov_type="HC2")
 
-print("Difference in means:", model.params["treat"].round(1))
-print("Standard error:     ", model.bse["treat"].round(1))
-print("95% interval:       ", model.conf_int().loc["treat"].round(1).tolist())
+print("Difference in means:", model.params["treat"].round(3))
+print("Standard error:     ", model.bse["treat"].round(3))
+print("95% interval:       ", model.conf_int().loc["treat"].round(3).tolist())
 ```
 
 ```
@@ -376,7 +376,7 @@ Suppose there had been no experiment. We only have the 185 trained men, and we c
 from causaldata import cps_mixtape
 
 cps = cps_mixtape.load_pandas().data
-print("Treated minus CPS:", (treated["re78"].mean() - cps["re78"].mean()).round(1))
+print("Treated minus CPS:", (treated["re78"].mean() - cps["re78"].mean()).round(3))
 ```
 
 ```
