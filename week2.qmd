@@ -327,7 +327,18 @@ $$
 E[Y_i \mid D_i = 1] - E[Y_i \mid D_i = 0]
 $$
 
-no longer has to equal a treatment effect. The next simulation shows how far off it can be.
+no longer has to equal a treatment effect. To see why, add and subtract $E[Y_i(0) \mid D_i = 1]$, the average outcome the treated *would have had* without treatment. By consistency, $E[Y_i \mid D_i = 1] = E[Y_i(1) \mid D_i = 1]$ and $E[Y_i \mid D_i = 0] = E[Y_i(0) \mid D_i = 0]$, so
+
+$$
+\underbrace{E[Y_i \mid D_i = 1] - E[Y_i \mid D_i = 0]}_{\text{simple difference in mean outcomes}}
+= \underbrace{E[Y_i(1) - Y_i(0) \mid D_i = 1]}_{\text{ATT}}
++ \underbrace{E[Y_i(0) \mid D_i = 1] - E[Y_i(0) \mid D_i = 0]}_{\text{selection bias}}.
+$$
+
+- The **ATT** is the average effect among the people who were actually treated.
+- The **selection bias** compares the two groups on the same potential outcome, $Y_i(0)$: how different their average outcomes would be if *neither* group were treated. Its first term, $E[Y_i(0) \mid D_i = 1]$, is a counterfactual and is never observed.
+
+Given consistency, this equation always holds: it is just algebra, with no other assumption. Under random assignment, the selection bias is zero, so the simple difference estimates the ATT, which then also equals the ATE. Without random assignment, nothing makes the selection bias zero. The next simulation shows how far off the simple difference can be.
 
 ### 3.2 A simulation: let people choose
 
