@@ -53,7 +53,7 @@ All the code on this page is in the notebook `week2.ipynb` in the [`week2-starte
 6. In Visual Studio Code, choose **File → Open Folder…** and open the new `week2` folder (the folder, not just one file).
 7. Open `week2.ipynb`. Click **Select Kernel** → **Jupyter Kernel…** → **ECON 481 (Python 3.12)**.
 
-Run the cells in order as you read this page, and write your answers to the questions in the notebook. The notebook downloads the data from the internet, so you need a connection.
+Run the cells in order as you read this page, and write your answers to the questions in the notebook. In a few places the notebook asks you to write the code yourself: those cells are marked `# TODO`, and each is followed by a **check** cell that prints `not done yet` until you fill it in. The notebook downloads the data from the internet, so you need a connection.
 
 ## Potential outcomes in one paragraph
 
@@ -192,6 +192,8 @@ ybar_0 = control["re78"].sum()/n_0   # mean outcome of the control group
 diff = ybar_1 - ybar_0
 ```
 
+Their difference is our estimate of the ATE, $\hat{\tau}_{\text{ATE}} = \overline{Y}_1 - \overline{Y}_0$, stored as `diff`.
+
 How can we find the standard error of $\hat{\tau}_{\text{ATE}}$? First, we compute the sample variance of the observed outcome $Y_i$ within each group. Under random assignment, these estimate the variances of $Y(1)$ and $Y(0)$.
 
 $$
@@ -206,6 +208,8 @@ $$
 \widehat{\text{Var}}[\hat{\tau}_{\text{ATE}}] &= \frac{s_1^2}{n_1} + \frac{s_0^2}{n_0} & \text{SE}_{\text{ATE}} &= \sqrt{\widehat{\text{Var}}[\hat{\tau}_{\text{ATE}}]}
 \end{align*}
 $$
+
+Note the two different variances. $s_1^2$ and $s_0^2$ measure how spread out the **individual** outcomes $Y_i$ are within each group. Dividing by the group size gives the estimated variance of each group **mean**, $s_1^2 / n_1$ and $s_0^2 / n_0$. The two group means come from different people, so the variance of their difference is the sum of the two.
 
 ```python
 
@@ -229,8 +233,13 @@ print("95% interval: ", (diff -  quantile_975* se).round(3), "to", (diff + quant
 ```
 
 ```
-95% interval:  479.2 to 3109.5
+95% interval:  479.214 to 3109.472
 ```
+
+::: {.callout-note}
+## In the notebook
+In `week2.ipynb`, this step is yours: the notebook gives you `quantile_975` and asks you to compute the two ends of the interval from `diff` and `se`.
+:::
 
 In short, we can do all the previous code work as below.
 
@@ -250,10 +259,17 @@ print("95% interval:       ", (diff - 1.96 * se).round(3), "to", (diff + 1.96 * 
 ```
 
 ```
-Difference in means: 1794.3
-Standard error:      671.0
-95% interval:        479.2 to 3109.5
+Difference in means: 1794.343
+Standard error:      670.997
+95% interval:        479.19 to 3109.496
 ```
+
+::: {.callout-note}
+## In the notebook
+In `week2.ipynb`, you write this short version yourself, as `diff_pandas` and `se_pandas`, and a check cell compares it with your step-by-step numbers.
+:::
+
+The last digits differ slightly from the step-by-step version for two reasons: this cell uses 1.96 instead of `norm.ppf(0.975)` (1.95996…), and `re78` is stored with limited precision (`float32`), so summing in a different way changes the third decimal.
 
 You should get a difference of about **1,794 dollars**, with a standard error of about 671.
 
@@ -274,14 +290,27 @@ print("95% interval:       ", model.conf_int().loc["treat"].round(3).tolist())
 ```
 
 ```
-Difference in means: 1794.3
-Standard error:      671.0
-95% interval:        [479.2, 3109.5]
+Difference in means: 1794.342
+Standard error:      670.997
+95% interval:        [479.213, 3109.471]
 ```
+
+::: {.callout-note}
+## In the notebook
+In `week2.ipynb`, you copy this regression into the `# TODO` cell and check that it matches your numbers.
+:::
 
 ### Balance check
 
-Randomization should make the groups similar **before** treatment.
+Random assignment makes treatment independent of everything fixed before it: the potential outcomes, and also every characteristic of the people, whether we observe it or not. So, on average over possible assignments, the treated and control groups have the same distribution of every pre-treatment characteristic (Cunningham, *Mixtape*, Section 4.4, "Randomization balances potential outcomes"). We can only look at the characteristics we observe. The table below does that: it is a description of what the design implies, not a test of it.
+
+For each covariate $X$, the table shows the group means $\overline{X}_1$ and $\overline{X}_0$ and the **standardized difference**
+
+$$
+\text{std. diff.} = \frac{\overline{X}_1 - \overline{X}_0}{\sqrt{(s_{X,1}^2 + s_{X,0}^2) / 2}},
+$$
+
+where $s_{X,1}^2$ and $s_{X,0}^2$ are the sample variances of $X$ in each group. Dividing by a standard deviation removes the units, so a variable in dollars (`re74`) and a 0/1 variable (`black`) can be compared on the same scale.
 
 ```python
 covariates = ["age", "educ", "black", "hisp", "marr", "nodegree", "re74", "re75"]
@@ -308,7 +337,7 @@ re74      2095.57  2107.03       -0.00
 re75      1532.06  1266.91        0.08
 ```
 
-**Question 3.** Most standardized differences are small, but `nodegree` is about −0.30. Does that mean the randomization failed?
+Comparing the mean outcomes of two groups is a fair comparison only when the two groups are similar, on average, in their characteristics before treatment. Random assignment makes them similar on average; in any one sample, some differences remain by chance.
 
 ## Lab 3 — Observational studies
 
@@ -366,7 +395,9 @@ Selection bias:   -3.233
 ATT + bias:       -1.233
 ```
 
-**Question 4.** The naive difference is negative although the effect is exactly 2 for everyone. Which line explains why? Check that the last two lines add up.
+**Question 3.** The naive difference is negative although the effect is exactly 2 for everyone. Which line explains why? Check that the last two lines add up.
+
+**Question 4.** In this simulation, people with a *lower* outcome without treatment are more likely to be treated. Give one real-world example where this happens.
 
 ### 3.3 LaLonde (1986): swap the control group
 
@@ -380,7 +411,7 @@ print("Treated minus CPS:", (treated["re78"].mean() - cps["re78"].mean()).round(
 ```
 
 ```
-Treated minus CPS: -8497.5
+Treated minus CPS: -8497.516
 ```
 
 The answer is now about **−8,498 dollars**: the program seems to *destroy* earnings.
@@ -405,7 +436,7 @@ re74          2095.57      2107.03  14016.80
 re75          1532.06      1266.91  13650.80
 ```
 
-**Question 5.** Use the decomposition from Section 3.2. Taking 1,794 as the ATT, how large is the selection bias? Which rows of the table explain its sign?
+**Question 5.** Use the decomposition from Section 3.1. Taking 1,794 as the ATT, how large is the selection bias? Which rows of the table explain its sign?
 
 ### 3.4 What if we keep only CPS men who look like the trainees?
 
@@ -437,7 +468,7 @@ CPS, no earnings in 1974 and 1975   n =   1181   gap =    3402.0
 | CPS, no earnings in 1974 and 1975 | 1,181 | +3,402 |
 | NSW random control (the experiment) | 260 | +1,794 |
 
-**Question 6.** The answer moves a lot depending on which rule you pick. What would a *principled* way of choosing comparison people need to do?
+**Question 6.** The gap moves a lot depending on the rule we use to choose comparison people. What should a good rule be based on, and why?
 
 In the NSW data, we do not know everything that drives selection. How to choose comparison people in a principled way is the topic of Weeks 3 and 4.
 
@@ -451,16 +482,16 @@ D = rng.permuted(np.tile(np.repeat([1, 0], n // 2), (reps, 1)), axis=1)
 Y = D * y1 + (1 - D) * y0
 
 estimates = (Y * D).sum(axis=1) / D.sum(axis=1) - (Y * (1 - D)).sum(axis=1) / (1 - D).sum(axis=1)
-print("Estimated ATE:", (np.sum(estimates)/reps).round(3))
+print("Mean of the 2,000 estimates:", (np.sum(estimates)/reps).round(3))
 plt.hist(estimates, bins=40, color="lightblue", edgecolor="white")
 plt.axvline(tau, color="red", label="true ATE")
-plt.axvline(np.sum(estimates)/reps, color="blue", linestyle="--",label="estimated ATE")
+plt.axvline(np.sum(estimates)/reps, color="blue", linestyle="--",label="mean of the estimates")
 plt.legend()
 plt.show()
 ```
 
 ```
-Estimated ATE: 2.0
+Mean of the 2,000 estimates: 2.0
 ```
 
 ![](images/week2/fig1.png)
