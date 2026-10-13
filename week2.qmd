@@ -66,10 +66,10 @@ $$
 where $D_i \in \{0, 1\}$ is the treatment variable ($D_i = 1$ if person $i$ is treated, $0$ otherwise), and $Y_i(d)$, $d \in \{0, 1\}$, are the potential outcomes of person $i$. The **average treatment effect** is
 
 $$
-\tau_{\text{ATE}} = E[Y(1) - Y(0)].
+\tau_{\text{ATE}} = E[Y_i(1) - Y_i(0)].
 $$
 
-The **average treatment effect on the treated** is $\tau_{\text{ATT}}  = E[Y(1) - Y(0) \mid D = 1]$.
+The **average treatment effect on the treated** is $\tau_{\text{ATT}}  = E[Y_i(1) - Y_i(0) \mid D_i = 1]$.
 
 In real data, half of the potential outcomes are missing. In a simulation, we create both, so we know the truth and can check our estimators against it.
 
