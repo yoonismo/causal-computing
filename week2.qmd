@@ -57,7 +57,9 @@ Run the cells in order as you read this page, and write your answers to the ques
 
 ## Potential outcomes framework in a nutshell
 
-The potential outcomes framework helps researchers analyze what would have happened to an outcome of interest for a unit with a given treatment status if the unit had received a different treatment. For instance, economists are often interested in what would have happened to the annual income of a person with an undergraduate degree if she had not gone to college. The problem with this type of analysis is that we cannot observe what does not happen to units. For example, we never observe the annual income a college graduate would have earned without the degree, and vice versa. This is called the fundamental problem of causal inference (Holland, 1986), and much of the causal inference literature is about the theories that make causal analysis feasible, and the statistical methods that make it accurate. 
+The potential outcomes framework helps researchers analyze what would have happened to an outcome of interest for a unit with a given treatment status if the unit had received a different treatment. For instance, economists are often interested in what would have happened to the annual income of a person with an undergraduate degree if she had not gone to college. 
+
+The problem with this type of analysis is that we cannot observe what does not happen to units. For example, we never observe the annual income a college graduate would have earned without the degree, and vice versa. This is called the fundamental problem of causal inference (Holland, 1986), and much of the causal inference literature is about the theories that make causal analysis feasible, and the statistical methods that make it accurate. 
 
 ## Potential outcomes in mathematical terms
 
