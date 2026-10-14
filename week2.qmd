@@ -55,11 +55,11 @@ All the code on this page is in the notebook `week2.ipynb` in the [`week2-starte
 
 Run the cells in order as you read this page, and write your answers to the questions in the notebook. In a few places the notebook asks you to write the code yourself: those cells are marked `# TODO`, and each is followed by a **check** cell that prints `not done yet` until you fill it in. The notebook downloads the data from the internet, so you need a connection.
 
-## Potential outcome framework in a nutshell
+## Potential outcomes framework in a nutshell
 
 The potential outcomes framework helps researchers analyze what would have happened to an outcome of interest for a unit with a given treatment status if the unit had received a different treatment. For instance, economists are often interested in what would have happened to the annual income of a person with an undergraduate degree if she had not gone to college. The problem with this type of analysis is that we cannot observe what does not happen to units. For example, we never observe the annual income a college graduate would have earned without the degree, and vice versa. This is called the fundamental problem of causal inference (Holland, 1986), and much of the causal inference literature is about the theories that make causal analysis feasible, and the statistical methods that make it accurate. 
 
-## Potential outcomes in one paragraph
+## Potential outcomes in mathematical terms
 
 Each person $i$ has two potential outcomes: $Y_i(1)$ if treated and $Y_i(0)$ if not. We only ever see one of them:
 
