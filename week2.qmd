@@ -498,7 +498,7 @@ plt.show()
 Mean of the 2,000 estimates: 2.0
 ```
 
-![](images/week2/fig1.png)
+![](images/week2/week2_fig1_new.png)
 
 **Optional question.** Where is the centre of the histogram? What does that tell you about the difference in means under random assignment?
 
