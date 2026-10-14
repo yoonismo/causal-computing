@@ -124,6 +124,8 @@ Difference in means: 2.126
 
 ## Lab 2 — A real experiment: the National Supported Work Demonstration
 
+In this section, we are going to go over how to analyze the causal effect of a treatment on an outcome of interest under randomized experiment, using a real data set. 
+
 In the 1970s, the National Supported Work (NSW) program offered work experience to people facing serious disadvantage in the labour market. Among eligible applicants, it **randomly** decided who joined the program. We use the sample studied by Dehejia and Wahba (1999): 185 treated and 260 control men. The outcome `re78` is earnings in 1978, in US dollars.
 
 First, we load the NSW data. The package `causaldata` contains many data sets; `nsw_mixtape` is the one used in LaLonde (1986) and Dehejia and Wahba (1999). We name the data `nsw`.
