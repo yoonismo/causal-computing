@@ -1,6 +1,8 @@
 project:
   type: website
   output-dir: _site
+  resources:
+    - "_hands_on_exercise/*.ipynb"
 
 website:
   # Future title, for when this becomes my own course:

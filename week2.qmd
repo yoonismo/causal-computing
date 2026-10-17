@@ -50,6 +50,12 @@ All the code on this page is in the notebook `week2.ipynb` in the [`week2-starte
     uv pip install pandas causaldata statsmodels
     ```
 
+    | Package | What it is for |
+    |---|---|
+    | `pandas` | Tables of data (data frames): load a data set, select rows and columns, compute group means |
+    | `causaldata` | Example data sets from causal inference textbooks; we load the NSW and CPS data from it |
+    | `statsmodels` | Statistical models: regressions with robust standard errors, tests |
+
 6. In Visual Studio Code, choose **File → Open Folder…** and open the new `week2` folder (the folder, not just one file).
 7. Open `week2.ipynb`. Click **Select Kernel** → **Jupyter Kernel…** → **ECON 481 (Python 3.12)**.
 
@@ -126,9 +132,11 @@ Difference in means: 2.126
 
 In this section, we are going to go over how to analyze the causal effect of a treatment on an outcome of interest in a randomized experiment, using a real data set. 
 
-In the 1970s, the National Supported Work (NSW) program offered work experience to people facing serious disadvantage in the labour market. Among eligible applicants, it **randomly** decided who joined the program. We use the sample studied by Dehejia and Wahba (1999): 185 treated and 260 control men. The outcome `re78` is earnings in 1978, in US dollars.
+In the 1970s, the National Supported Work (NSW) Demonstration offered 12 to 18 months of supported work to people who had great difficulty finding jobs: women who had received welfare (Aid to Families with Dependent Children) for many years, former drug addicts, former offenders, and young school dropouts (MDRC, 1980). Among eligible applicants, a **random** draw decided who was offered a supported-work job (the treated group) and who was not (the control group). Because chance, not the applicants, made this decision, the two groups are comparable; the results apply to people like these applicants.
 
-First, we load the NSW data. The package `causaldata` contains many data sets; `nsw_mixtape` is the one used in LaLonde (1986) and Dehejia and Wahba (1999). We name the data `nsw`.
+We use the sample of men studied by Dehejia and Wahba (1999): 185 treated and 260 control men. It is a subset of the male sample in LaLonde (1986), which had 297 treated and 425 control men. Dehejia and Wahba kept the men whose earnings were recorded in both 1974 and 1975, because earnings over several years before a training program help in evaluating it. The outcome `re78` is earnings in 1978, in US dollars.
+
+First, we load the NSW data. The package `causaldata` contains many data sets; `nsw_mixtape` is the Dehejia and Wahba (1999) sample described above. We name the data `nsw`.
 
 ```python
 from causaldata import nsw_mixtape
@@ -512,12 +520,21 @@ Open `star_practice.ipynb` in your `week2` repository. It repeats Labs 2 and 3 o
 
 When you finish, clear all outputs, then `git add`, `git commit` and `git push`, as in Week 1, Lab 2. The **Actions** tab should turn green.
 
+### Hands-on exercise: replicate Krueger (1999)
+
+[Download the exercise notebook (`week2_STAR_exercise.ipynb`)](_hands_on_exercise/week2_STAR_exercise.ipynb){download="week2_STAR_exercise.ipynb"}
+
+Save it in your course folder, open it in Visual Studio Code, and choose the **ECON 481 (Python 3.12)** kernel. The notebook estimates the effect of small classes on test scores in kindergarten, three ways: by hand, with `pandas`, and with `statsmodels`.
+
 ## References
 
 ### Data
 
-- Dehejia, R. H., and Wahba, S. (1999). Causal effects in nonexperimental studies: Reevaluating the evaluation of training programs. *Journal of the American Statistical Association*, 94(448), 1053–1062.
-- LaLonde, R. J. (1986). Evaluating the econometric evaluations of training programs with experimental data. *American Economic Review*, 76(4), 604–620.
+- Dehejia, R. H., and Wahba, S. (1999). Causal effects in nonexperimental studies: Reevaluating the evaluation of training programs. *Journal of the American Statistical Association*, 94(448), 1053–1062. <https://doi.org/10.1080/01621459.1999.10473858> (free working-paper version: NBER Working Paper 6586, <https://www.nber.org/papers/w6586>)
+- Dehejia, R. H., and Wahba, S. (2002). Propensity score-matching methods for nonexperimental causal studies. *Review of Economics and Statistics*, 84(1), 151–161.
+- Dehejia, R. H. NSW data files (LaLonde's male sample and the Dehejia–Wahba subsample), licensed CC BY-NC 2.0. <https://users.nber.org/~rdehejia/nswdata2.html>
+- LaLonde, R. J. (1986). Evaluating the econometric evaluations of training programs with experimental data. *American Economic Review*, 76(4), 604–620. <https://ideas.repec.org/a/aea/aecrev/v76y1986i4p604-20.html> (free working-paper version: <https://irs.princeton.edu/publications/working-papers/evaluating-econometric-evaluations-training-programs-experimental-data>)
+- MDRC (1980). *Summary and Findings of the National Supported Work Demonstration*. <https://www.mdrc.org/work/publications/summary-and-findings-national-supported-work-demonstration>
 - Huntington-Klein, N. *causaldata*: Example Data Sets for Causal Inference (Python package, version 0.1.5, MIT license). <https://pypi.org/project/causaldata/>
 - Krueger, A. B. (1999). Experimental estimates of education production functions. *Quarterly Journal of Economics*, 114(2), 497–532.
 - Stock, J. H., and Watson, M. W. (2007). *Introduction to Econometrics*, 2nd ed. Addison Wesley. (Source of the STAR data as distributed in the R package AER: <https://vincentarelbundock.github.io/Rdatasets/doc/AER/STAR.html>)
