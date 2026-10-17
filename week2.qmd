@@ -355,6 +355,12 @@ re75      1532.06  1266.91        0.08
 
 Comparing the mean outcomes of two groups is a fair comparison only when the two groups are similar, on average, in their characteristics before treatment. Random assignment makes them similar on average; in any one sample, some differences remain by chance.
 
+### Hands-on exercise: replicate Krueger (1999)
+
+[Download the exercise notebook (`week2_STAR_exercise.ipynb`)](_hands_on_exercise/week2_STAR_exercise.ipynb){download="week2_STAR_exercise.ipynb"}
+
+You now have everything you need for this exercise: it repeats the steps of Lab 2 on a different experiment. Save the notebook in your course folder, open it in Visual Studio Code, and choose the **ECON 481 (Python 3.12)** kernel. The notebook estimates the effect of small classes on test scores in kindergarten, three ways: by hand, with `pandas`, and with `statsmodels`.
+
 ## Lab 3 — Observational studies
 
 ### 3.1 Why do we need observational studies?
@@ -513,18 +519,6 @@ Mean of the 2,000 estimates: 2.0
 ![](images/week2/week2_fig1_new.png)
 
 **Optional question.** Where is the centre of the histogram? What does that tell you about the difference in means under random assignment?
-
-## After the tutorial: practise on your own
-
-Open `star_practice.ipynb` in your `week2` repository. It repeats Labs 2 and 3 on the Tennessee STAR class-size experiment: you analyse a real experiment, then see what goes wrong when families choose. Cells marked `# TODO` are yours; each is followed by a check cell.
-
-When you finish, clear all outputs, then `git add`, `git commit` and `git push`, as in Week 1, Lab 2. The **Actions** tab should turn green.
-
-### Hands-on exercise: replicate Krueger (1999)
-
-[Download the exercise notebook (`week2_STAR_exercise.ipynb`)](_hands_on_exercise/week2_STAR_exercise.ipynb){download="week2_STAR_exercise.ipynb"}
-
-Save it in your course folder, open it in Visual Studio Code, and choose the **ECON 481 (Python 3.12)** kernel. The notebook estimates the effect of small classes on test scores in kindergarten, three ways: by hand, with `pandas`, and with `statsmodels`.
 
 ## References
 
