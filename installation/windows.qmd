@@ -118,6 +118,14 @@ Install the packages into it:
 uv pip install numpy scipy matplotlib ipykernel jupyterlab
 ```
 
+| Package | What it is for |
+|---|---|
+| `numpy` | Arrays (vectors and matrices) and fast calculations on them, including random numbers |
+| `scipy` | Scientific tools built on `numpy`: probability distributions, statistical tests, optimization |
+| `matplotlib` | Plots and figures |
+| `ipykernel` | Lets Visual Studio Code and Jupyter run a notebook with the Python in this environment |
+| `jupyterlab` | The Jupyter notebook tools (and a notebook editor that runs in the browser) |
+
 If PowerShell says *"running scripts is disabled on this system"*, run this once, then try `.venv\Scripts\activate` again:
 
 ```powershell

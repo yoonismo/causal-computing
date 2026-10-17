@@ -121,6 +121,14 @@ Install the packages into it:
 uv pip install numpy scipy matplotlib ipykernel jupyterlab
 ```
 
+| Package | What it is for |
+|---|---|
+| `numpy` | Arrays (vectors and matrices) and fast calculations on them, including random numbers |
+| `scipy` | Scientific tools built on `numpy`: probability distributions, statistical tests, optimization |
+| `matplotlib` | Plots and figures |
+| `ipykernel` | Lets Visual Studio Code and Jupyter run a notebook with the Python in this environment |
+| `jupyterlab` | The Jupyter notebook tools (and a notebook editor that runs in the browser) |
+
 Your prompt now starts with `(ECON481)` or `(.venv)`. That tells you which environment is active.
 
 Finally, register the environment with Jupyter under the name **ECON 481 (Python 3.12)**. You do this **once**. Afterwards, any notebook in any folder can use this environment.
