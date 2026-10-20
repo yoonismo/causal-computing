@@ -34,7 +34,7 @@ website:
         href: week1.qmd
       - text: "Week 2: Random Experiments make life easy"
         href: week2.qmd
-      - text: "Week 3: Subclassification and Matching"
+      - text: "Week 3: Observational Studies - Subclassification and Matching"
         href: week3.qmd
   page-footer:
     center: "© 2026 Yoon Choi · Built with [Quarto](https://quarto.org)"
