@@ -450,7 +450,7 @@ Here $\hat\sigma_m^2$ is the sample variance of covariate $m$ and $\hat\Sigma$ t
 Match each trainee to the $M$ closest CPS men, chosen **with replacement** (a CPS man can be used more than once), and let $j_1(i), \dots, j_M(i)$ be the $M$ closest CPS men to trainee $i$:
 
 $$
-\hat{\tau}_{\text{ATT}} = \frac{1}{N^1} \sum_{i:\, D_i = 1} \left( Y_i - \frac{1}{M}\sum_{m=1}^{M} Y_{j_m(i)} \right).
+\hat{\tau}_{\text{ATT}} = \frac{1}{N^1} \sum_{i:\, D_i = 1} \left( Y_i - \frac{1}{M_i} \sum_{j \in \mathcal{J}(i)} Y_j \right), \qquad M_i = |\mathcal{J}(i)|,
 $$
 
 We use one match per trainee, $M = 1$, and write $j(i)$ for the closest CPS man, so the term in parentheses is $Y_i - Y_{j(i)}$.
