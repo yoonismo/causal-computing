@@ -265,6 +265,20 @@ re74           2095.57       2107.03  14016.80
 re75           1532.06       1266.91  13650.80
 ```
 
+The same comparison in pictures. First, the whole distribution of one covariate, age, in its own units (years): trainees against CPS men.
+
+![](images/week3/balance_age_before.png)
+
+Covariates have different units (years, dollars, 0/1), so to put all of them in one picture we use the **standardized difference** from the Week 2 balance check:
+
+$$
+\text{std. diff.} = \frac{\overline{X}_1 - \overline{X}_0}{\sqrt{(s_{X,1}^2 + s_{X,0}^2) / 2}},
+$$
+
+here with the trainees as group 1 and the CPS men as group 0. A value of 1 means the two means are one standard deviation apart. The dashed lines at $\pm 0.1$ are a common rule of thumb for "small" (Austin, 2009); it is a convention, not a test.
+
+![](images/week3/balance_std_before.png)
+
 The trainees and the CPS men differ in almost every covariate: the CPS men are older, more educated, more often married, rarely black, and earned far more in 1974 and 1975. This **covariate imbalance** is why the naive comparison fails. The rest of this week corrects it in two ways: subclassification and matching. (For a longer discussion of this data exercise, see the [Mixtape, Section 5.10](https://mixtape.scunning.com/05-causal_cross_sectional_designs#national-support-work-demonstration-data-exercise).)
 
 A first, informal attempt: keep only the CPS men who look like the trainees, using a few rules picked by hand.
@@ -561,6 +575,12 @@ re74       2095.57      2226.65  14016.80
 re75       1532.06      1640.55  13650.80
 ```
 
+The same two pictures after matching. The matched CPS men are counted as often as they are used, so a man matched to three trainees counts three times. The standardized differences keep the denominator from Lab 2, so only the numerator changes.
+
+![](images/week3/balance_age_after.png)
+
+![](images/week3/balance_std_after.png)
+
 ::: {.callout-note}
 ## In the notebook
 In `week3.ipynb`, you compute the same means for the CPS men matched by the normalized Euclidean distance, in a `# TODO` cell.
@@ -608,3 +628,4 @@ In Week 4, we will use the propensity score and regression to estimate causal ef
 - Hirano, K., Imbens, G. W., and Ridder, G. (2003). Efficient estimation of average treatment effects using the estimated propensity score. *Econometrica*, 71(4), 1161–1189.
 - King, G., and Nielsen, R. (2019). Why propensity scores should not be used for matching. *Political Analysis*, 27(4), 435–454.
 - Rosenbaum, P. R., and Rubin, D. B. (1983). The central role of the propensity score in observational studies for causal effects. *Biometrika*, 70(1), 41–55.
+- Austin, P. C. (2009). Balance diagnostics for comparing the distribution of baseline covariates between treatment groups in propensity-score matched samples. *Statistics in Medicine*, 28(25), 3083–3107.
