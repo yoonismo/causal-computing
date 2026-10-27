@@ -8,3 +8,7 @@ table { font-size: 0.95rem; }
 
 /* No copy buttons from Lab 1 onward: students type the code themselves */
 .no-copy .code-copy-button { display: none !important; }
+
+/* Long display equations (e.g. Week 4 IPW derivation): scroll sideways inside the text column
+   instead of running into the table of contents. MathJax sets a min-width on equations with tags. */
+mjx-container[display="true"] { overflow-x: auto; overflow-y: hidden; max-width: 100%; min-width: 0 !important; }
