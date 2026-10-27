@@ -412,10 +412,10 @@ $$
 $$
 
 $$
-    \hat{\tau}_{\text{ATT}}^{\text{IPW}} = \big(\sum_{i =1}^n D_iY_i\big) / (\sum_{i=1}^n D_i) - \big(\sum_{i=1}^n \hat{w}_i (1-D_i) Y_i \big) / (\sum_{i=1}^n \hat{w}_i (1-D_i)) 
+    \hat{\tau}_{\text{ATT}}^{\text{IPW}} = \big(\sum_{i =1}^n D_iY_i\big) / (\sum_{i=1}^n D_i) - \big(\sum_{i=1}^n \hat{\omega}_i (1-D_i) Y_i \big) / (\sum_{i=1}^n \hat{\omega}_i (1-D_i)) 
 $$
 
-where $\hat{w}_i = \hat{e}(X_i)/(1- \hat{e}(X_i))$. It is also called the  **Hájek** estimator (Hájek, 1971).
+where $\hat{\omega}_i = \hat{e}(X_i)/(1- \hat{e}(X_i))$. It is also called the  **Hájek** estimator (Hájek, 1971).
 
 ## Lab 2 — Inverse probability weighting
 
