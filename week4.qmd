@@ -68,19 +68,23 @@ rng = np.random.default_rng(481)
 
 ## From Week 3 to Week 4
 
-In Week 3 we identified causal effects without an experiment under two assumptions:
+In Week 3 we identified causal effects without a randomized experiment under the three identification assumptions, consistency, unconfoundedness, and positivity:
 
+under the three identification assumptions
+
+- **consistency:** $Y_i = D_i Y_i(1) + (1-D_i)Y_i (0)$
 - **unconfoundedness:** $(Y_i(1), Y_i(0)) \perp D_i \mid X_i$, and
-- **common support:** $0 < P(D_i = 1 \mid X_i = x) < 1$ for every $x$.
+- **common support:** $0 < P(D_i = 1 \mid X_i = x) < 1$ for every $x$. (a.k.a. positivity)
 
 They are critical assumptions for identification. Causal inference literature has developed numerous methods to measure causal effects. The main approach is to abide by the above identification assumptions by literally following what they mean: match units whose covariates of a group are equal or similar to those of one another. Subclassification and matching are the estimation methods that satisfy it. However, the two approaches have problems when it comes to many covariates. 
 
 1. Subclassification encounters a challenge because cells in groups become empty as the number of covariates grows. So, it requires more observations to not have empty cells, a.k.a. the curse of dimensionality.
 2. Matching methods have difficulty finding matches in a group whose covariates are similar to those of their counterparts as the dimension of covariates increases since it becomes hard to find the matches **close enough** to the ones in every or even most aspects in covariates.
 
-Hence, this week we are going to learn two different ways to use the same two assumptions using the **propensity score**. 
+Hence, this week we are going to learn two estimators to resolve the above issues and others:
 
-Moreover, we consider misspecification of outcome model $\mu_d(x) = E[Y_i | D_i = d, X_i = x]$. We often assume a linear regression model to estimate causal effects. However, what if we are wrong about the model functional form? How do we correct the misspecification error if it exists? We are going to learn an econometrically well-developed causal parameter estimator **Augmented Inverse Probability Weighting**, or **AIPW** estimator. 
+1. **inverse probability weighting** estimators, through the **propensity score**, to estimate causal parameters such as the ATE and/or ATT.  
+2. **augmented inverse probability weighting** estimators to handle model misspecification errors, combined with the IPW. 
 
 ## The propensity score
 
@@ -322,9 +326,11 @@ e
 
 In a randomized experiment everyone has the same chance of treatment regardless of who they are. However, in observational studies the probability of getting treated depends on their characteristics. That is, some people are more likely to be treated than others. 
 
-How do we resolve this issue? Weighting each treated person by $1/e(X_i)$ and each untreated person by $1/(1 - e(X_i))$ undoes this. 
+How do we resolve this issue? We use the propensity score $e(X_i)$. It mitigates the issues from subclassification and matching methods. 
 
-For instance, the treated units whose propensity scores are high or close to 1 will receive less weight than other treated units with smaller propensity scores. If a unit's propensity score is close to 1, it can be viewed as "obvious," because given an observed covariate $X_i = x$, he or she has more chance to get treated. However, if there is a treated unit whose probability of being treated is low, the chance of being treated can be viewed as "rare," because the unit was treated although the unit's characteristics showed they would not be likely to be. 
+Then how exactly do we use the propensity score? By weighting each treated person by $1/e(X_i)$ and each untreated person by $1/(1 - e(X_i))$. 
+
+What does this mean? The treated units whose propensity scores are high or close to 1 will receive less weight than other treated units with smaller propensity scores. If a unit's propensity score is close to 1, it can be viewed as "obvious," because given an observed covariate $X_i = x$, he or she has more chance to get treated. However, if there is a treated unit whose probability of being treated is low, the chance of being treated can be viewed as "rare," because the unit was treated although the unit's characteristics showed they would not be likely to be. 
 
 IPW is an estimator of a causal effect adjusting for weighting for each outcome value. 
 
@@ -519,13 +525,7 @@ re75       1532.06       1474.90  13650.80
 
 ## Outcome model with a regression 
 
-Let's say we are interested in estimating the ATE under the three identification assumptions, consistency, unconfoundedness, and positivity: 
-
-- consistency: $Y_i = D_i Y_i(1) + (1-D_i)Y_i (0)$
-- unconfoundedness: $( Y_i (1), Y_i(0)) \perp D_i | X_i$
-- positivity: $0< \text{Pr}(D_i = 1 | X_i = x) < 1$ for every $x$. 
-
-We know the definition of ATE:
+Let's say we are interested in estimating the ATE. We know the definition of ATE:
 $$
     \tau_{\text{ATE}} = E[Y_i(1)-Y_i(0)].
 $$
