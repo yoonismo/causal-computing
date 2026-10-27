@@ -451,14 +451,19 @@ True ATT:          2.359
 Simple difference: 4.074
 ```
 
-IPW with the **true** score, written out with the formulas above:
+IPW with an **estimated** score, a logit of $D_i$ on $X_i$ and $X_i^2$, written out with the formulas above:
 
 ```python
-w1 = d / e_true                         # weights of the treated for the ATE
-w0 = (1 - d) / (1 - e_true)             # weights of the untreated for the ATE
+import statsmodels.api as sm
+
+Z = sm.add_constant(np.column_stack([x, x**2]))
+e_hat = sm.Logit(d, Z).fit(disp=0).predict(Z)   # estimated propensity score
+
+w1 = d / e_hat                          # weights of the treated for the ATE
+w0 = (1 - d) / (1 - e_hat)              # weights of the untreated for the ATE
 ate_ipw = (w1 * y).sum() / w1.sum() - (w0 * y).sum() / w0.sum()
 
-odds = (1 - d) * e_true / (1 - e_true)  # weights of the untreated for the ATT
+odds = (1 - d) * e_hat / (1 - e_hat)    # weights of the untreated for the ATT
 att_ipw = y[d == 1].mean() - (odds * y).sum() / odds.sum()
 
 print("IPW, ATE:", round(ate_ipw, 3))
@@ -466,8 +471,8 @@ print("IPW, ATT:", round(att_ipw, 3))
 ```
 
 ```
-IPW, ATE: 1.861
-IPW, ATT: 2.151
+IPW, ATE: 1.942
+IPW, ATT: 2.28
 ```
 
 **Question 2.** In the ATE derivation, which equality uses unconfoundedness, and where would the formula break if $e(x) = 0$ for some $x$? Why does the ATT need only $e(x) < 1$?
