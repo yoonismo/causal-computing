@@ -8,9 +8,10 @@ After this class, you will be able to:
 
 - explain what the propensity score is and why one number can replace many covariates,
 - estimate the propensity score with a logit model, by hand and with `statsmodels`, and check overlap,
-- estimate the ATT by propensity score matching and by inverse probability weighting (IPW),
-- estimate a treatment effect by regression adjustment, and explain what goes wrong when the outcome model is misspecified, and
-- combine the two models in the augmented IPW (AIPW) estimator, and explain why it is called doubly robust.
+- estimate the ATE and ATT by inverse probability weighting (IPW),
+- estimate a treatment effect by an outcome model with a regression, and explain what goes wrong when the outcome model is misspecified,
+- estimate the two models in the augmented IPW (AIPW) estimator, and explain why it is called doubly robust.
+- (optional) estimate the ATT by propensity score matching. 
 
 ## Get the starter repository
 
@@ -613,14 +614,14 @@ def fit_mu(design):
 mu1_right, mu0_right = fit_mu(np.column_stack([x, x**2]))   # correct outcome model
 mu1_wrong, mu0_wrong = fit_mu(x)                            # misspecified: no x^2
 
-print("Regression adjustment, ATE, correct model:", round((mu1_right - mu0_right).mean(), 3))
-print("Regression adjustment, ATE, wrong model:  ", round((mu1_wrong - mu0_wrong).mean(), 3))
+print("Regression estimator, ATE, correct model:", round((mu1_right - mu0_right).mean(), 3))
+print("Regression estimator, ATE, wrong model:  ", round((mu1_wrong - mu0_wrong).mean(), 3))
 print("True ATE:                                 ", round((y1 - y0).mean(), 3))
 ```
 
 ```
-Regression adjustment, ATE, correct model: 1.975
-Regression adjustment, ATE, wrong model:   2.363
+Regression estimator, ATE, correct model: 1.975
+Regression estimator, ATE, wrong model:   2.363
 True ATE:                                  1.996
 ```
 
@@ -634,18 +635,18 @@ mu0_model = smf.ols(outcome_formula, data=c).fit()
 mu0_t = mu0_model.predict(t)                       # predicted earnings without training, for each trainee
 
 att_ra = (t["re78"] - mu0_t).mean()
-print("Regression adjustment, ATT:", round(att_ra, 1), "  (benchmark", round(benchmark, 1), ")")
+print("Regression estimator, ATT:", round(att_ra, 1), "  (benchmark", round(benchmark, 1), ")")
 ```
 
 ```
-Regression adjustment, ATT: 1165.4   (benchmark 1794.3 )
+Regression estimator, ATT: 1165.4   (benchmark 1794.3 )
 ```
 
 **Question 4.** The outcome model is fitted on CPS men, most of whom look very different from the trainees (Lab 1). The prediction $\hat\mu_0(X_i)$ for a trainee is therefore an **extrapolation**. Why is this dangerous, and how does it relate to the overlap problem of IPW?
 
 ## Doubly robust estimation: AIPW
 
-Regression adjustment is wrong if the outcome model is wrong; IPW is wrong if the propensity score model is wrong. **Augmented IPW** combines them: start from the regression prediction and correct it with an IPW-weighted average of the prediction errors (residuals).
+Estimating causal parameters with a regression is wrong if the outcome model is wrong; IPW is wrong if the propensity score model is wrong. **Augmented IPW** combines them: start from the regression prediction and correct it with an IPW-weighted average of the prediction errors (residuals).
 
 **ATE.**
 
@@ -662,12 +663,12 @@ $$
 - \frac{\sum_{i} (1 - D_i)\, \omega_i \big( Y_i - \hat\mu_0(X_i) \big)}{\sum_{i} (1 - D_i)\, \omega_i}.
 $$
 
-The first term is regression adjustment; the second subtracts the weighted average residual of the untreated.
+The first term is the regression estimator of causal effects; the second subtracts the weighted average residual of the untreated.
 
 **Why "doubly robust".**
 
 - If the **outcome model is right**, the residuals average to zero in every group, so the correction term vanishes on average, whatever the weights.
-- If the **propensity score is right**, the weighted residuals estimate exactly the error that regression adjustment makes, so the correction removes it, whatever the outcome model.
+- If the **propensity score is right**, the weighted residuals estimate exactly the error that the regression model makes, so the correction removes it, whatever the outcome model.
 
 So the estimator is consistent if **either** model is correct (Robins, Rotnitzky and Zhao, 1994; Bang and Robins, 2005).
 
@@ -782,8 +783,8 @@ We wrote every estimator ourselves. `statsmodels` also has them in one class, `T
 Ask your AI assistant to write the code. For example:
 
 > Using `TreatmentEffect` from `statsmodels.treatment.treatment_effects`, estimate treatment effects in two data sets that are already in my Python session.
-> (1) Arrays `y`, `d`, `x`: estimate the ATE by IPW, regression adjustment and AIPW, with the propensity score model `d ~ x + I(x**2)` (logit) and the outcome model `y ~ x + I(x**2)` (OLS).
-> (2) A data frame `both` with outcome `re78` and treatment `d`: estimate the ATT by IPW and regression adjustment. The fitted logit for the propensity score is called `logit`, and the outcome model formula is the string `outcome_formula`.
+> (1) Arrays `y`, `d`, `x`: estimate the ATE by IPW, regression estimator and AIPW, with the propensity score model `d ~ x + I(x**2)` (logit) and the outcome model `y ~ x + I(x**2)` (OLS).
+> (2) A data frame `both` with outcome `re78` and treatment `d`: estimate the ATT by IPW and regression estimator. The fitted logit for the propensity score is called `logit`, and the outcome model formula is the string `outcome_formula`.
 > Store the five point estimates in a list called `package`, in this order: the three ATEs from (1), then the two ATTs from (2).
 
 Paste the code below and run it. Read it before you trust it: which model is used for the propensity score and which for the outcome?
@@ -838,7 +839,7 @@ pd.Series({
     "Experimental benchmark": benchmark,
     "Naive NSW - CPS": naive,
     "IPW": att_ipw_nsw,
-    "Regression adjustment": att_ra,
+    "Regression estimator": att_ra,
     "AIPW": att_aipw,
 }, name="ATT").round(1)
 ```
@@ -847,7 +848,7 @@ pd.Series({
 Experimental benchmark    1794.3
 Naive NSW - CPS          -8497.5
 IPW                       1494.6
-Regression adjustment     1165.4
+Regression estimator     1165.4
 AIPW                      1562.4
 Name: ATT, dtype: float64
 ```
