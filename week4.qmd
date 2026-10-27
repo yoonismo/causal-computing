@@ -70,8 +70,6 @@ rng = np.random.default_rng(481)
 
 In Week 3 we identified causal effects without a randomized experiment under the three identification assumptions, consistency, unconfoundedness, and positivity:
 
-under the three identification assumptions
-
 - **consistency:** $Y_i = D_i Y_i(1) + (1-D_i)Y_i (0)$
 - **unconfoundedness:** $(Y_i(1), Y_i(0)) \perp D_i \mid X_i$, and
 - **common support:** $0 < P(D_i = 1 \mid X_i = x) < 1$ for every $x$. (a.k.a. positivity)
