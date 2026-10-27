@@ -12,3 +12,6 @@ table { font-size: 0.95rem; }
 /* Long display equations (e.g. Week 4 IPW derivation): scroll sideways inside the text column
    instead of running into the table of contents. MathJax sets a min-width on equations with tags. */
 mjx-container[display="true"] { overflow-x: auto; overflow-y: hidden; max-width: 100%; min-width: 0 !important; }
+
+/* Week 4 IPW derivations (inside the "Derivation" callouts): both derivations start at the same left edge */
+.derivation mjx-container[display="true"] { text-align: left !important; }

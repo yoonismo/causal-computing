@@ -329,7 +329,16 @@ IPW is an estimator of a causal effect adjusting for weighting for each outcome 
 
 ### ATE in terms of IPW
 
-We derive the causal parameter ATE, $\tau_{\text{ATE}}$ using the IPW representation. Note that from the consistency assumption, 
+We derive the causal parameter ATE, $\tau_{\text{ATE}}$ using the IPW representation.
+
+$$
+\tau_{\text{ATE}} = E[ \frac{D_iY_i}{e(X_i)} - \frac{(1-D_i) Y_i }{(1 -e(X_i))}]
+$$
+
+::::: {.callout-note collapse="true"}
+## Derivation (click to expand)
+
+Note that from the consistency assumption, 
 
 $$
     Y_i = D_i Y_i(1) + (1-D_i) Y_i(0)
@@ -347,32 +356,46 @@ $$
 $$
 
 We are now ready to derive $\tau_{\text{ATE}}$ using the IPW representation.
+
+::: {.derivation}
 $$
 \begin{align*}
     \tau_{\text{ATE}} =& E[Y_i(1)-Y_i(0)] \\ 
-                      =& E\big[E[Y_i(1)-Y_i(0) | X_i]\big] \tag{Law of iterated expectations}\\ 
-                      =& E\big[E[Y_i(1)| X_i] - E[Y_i(0) | X_i]\big] \tag{***}\\
+                      =& E\big[E[Y_i(1)-Y_i(0) | X_i]\big] \qquad \text{(Law of iterated expectations)}\\ 
+                      =& E\big[E[Y_i(1)| X_i] - E[Y_i(0) | X_i]\big] \qquad \text{(***)}\\
                       =& E\big[E[Y_i(1)| X_i]\frac{E[D_i | X_i]}{E[D_i | X_i]} - E[Y_i(0) | X_i] \frac{E[(1-D_i) | X_i]}{E[(1-D_i) | X_i]}\big] \\
                       =& E\big[ \frac{1}{E[D_i | X_i]}E[Y_i(1)| X_i]E[D_i | X_i] - \frac{1}{E[(1-D_i) | X_i]}E[Y_i(0) | X_i]E[(1-D_i) | X_i]\big] \\
                       =& E\big[ \frac{1}{e(X_i)}E[Y_i(1)| X_i]E[D_i | X_i] - \frac{1}{(1 -e(X_i))}E[Y_i(0) | X_i]E[(1-D_i) | X_i]\big] \\
                       =& E\big[ \frac{1}{e(X_i)}E[D_iY_i(1)| X_i] - \frac{1}{(1 -e(X_i))}E[(1-D_i) Y_i(0) | X_i]\big] \\
-                      =& E\big[ \frac{1}{e(X_i)}E[D_iY_i| X_i] - \frac{1}{(1 -e(X_i))}E[(1-D_i) Y_i | X_i]\big] \tag{(*) and (**)}\\
+                      =& E\big[ \frac{1}{e(X_i)}E[D_iY_i| X_i] - \frac{1}{(1 -e(X_i))}E[(1-D_i) Y_i | X_i]\big] \qquad \text{((*) and (**))}\\
                       =& E[ \frac{D_iY_i}{e(X_i)} - \frac{(1-D_i) Y_i }{(1 -e(X_i))}]
 \end{align*}
 $$
+:::
+:::::
 
 For ATT, 
 
 $$
+\tau_{\text{ATT}} = \frac{1}{\text{Pr}(D_i = 1)}E[   e(X_i) \big\{\frac{D_iY_i}{e(X_i)} - \frac{(1-D_i) Y_i }{(1 -e(X_i))}\big\}]
+$$
+
+::::: {.callout-note collapse="true"}
+## Derivation (click to expand)
+
+::: {.derivation}
+$$
 \begin{align*}
     \tau_{\text{ATT}} =& E[Y_i(1)-Y_i(0)| D_i = 1] \\ 
                       =& E[Y_i(1)|  D_i = 1] - E[Y_i(0)| D_i = 1] \\
-                      =& E[ \frac{1}{\text{Pr}(D_i = 1)} E[ Y_i(1)|X_i ]  e(X_i)] - E[ \frac{1}{\text{Pr}(D_i = 1)} E[ Y_i(0)|X_i ] e(X_i)]\tag{Apply (***)}\\
+                      =& E[ \frac{1}{\text{Pr}(D_i = 1)} E[ Y_i(1)|X_i ]  e(X_i)] - E[ \frac{1}{\text{Pr}(D_i = 1)} E[ Y_i(0)|X_i ] e(X_i)]\qquad \text{(Apply (***))}\\
                       =& \frac{1}{\text{Pr}(D_i = 1)}\big[E[  E[ Y_i(1)|X_i ]  e(X_i)] - E[  E[ Y_i(0)|X_i ]  e(X_i)]\big]\\
                       =& \frac{1}{\text{Pr}(D_i = 1)}\big[E[  \frac{D_i Y_i}{e(X_i)}  e(X_i)] - E[  \frac{(1-D_i) Y_i}{1-e(X_i)}   e(X_i)]\big]\\
                       =&\frac{1}{\text{Pr}(D_i = 1)}E[   e(X_i) \big\{\frac{D_iY_i}{e(X_i)} - \frac{(1-D_i) Y_i }{(1 -e(X_i))}\big\}]\\
 \end{align*}
 $$
+:::
+:::::
 
 **In the sample** we replace the expectations by sample averages: 
 
