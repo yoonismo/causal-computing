@@ -778,13 +778,13 @@ re75       -1.75              -0.00
 
 ## Lab 6 — Let a package do it
 
-We wrote every estimator ourselves. `statsmodels` also has them in one class, `TreatmentEffect` (in `statsmodels.treatment.treatment_effects`), with the methods `ipw`, `ra` and `aipw`. The option `effect_group=1` gives the effect on the treated (ATT).
+We wrote every estimator ourselves. `statsmodels` also has them in one class, `TreatmentEffect` (in `statsmodels.treatment.treatment_effects`), with the methods `ipw`, `ra` and `aipw` (`ra` stands for regression adjustment, another name for the regression estimator of Lab 3). The option `effect_group=1` gives the effect on the treated (ATT).
 
 Ask your AI assistant to write the code. For example:
 
 > Using `TreatmentEffect` from `statsmodels.treatment.treatment_effects`, estimate treatment effects in two data sets that are already in my Python session.
-> (1) Arrays `y`, `d`, `x`: estimate the ATE by IPW, regression estimator and AIPW, with the propensity score model `d ~ x + I(x**2)` (logit) and the outcome model `y ~ x + I(x**2)` (OLS).
-> (2) A data frame `both` with outcome `re78` and treatment `d`: estimate the ATT by IPW and regression estimator. The fitted logit for the propensity score is called `logit`, and the outcome model formula is the string `outcome_formula`.
+> (1) Arrays `y`, `d`, `x`: estimate the ATE by IPW, the regression estimator and AIPW, with the propensity score model `d ~ x + I(x**2)` (logit) and the outcome model `y ~ x + I(x**2)` (OLS).
+> (2) A data frame `both` with outcome `re78` and treatment `d`: estimate the ATT by IPW and the regression estimator. The fitted logit for the propensity score is called `logit`, and the outcome model formula is the string `outcome_formula`.
 > Store the five point estimates in a list called `package`, in this order: the three ATEs from (1), then the two ATTs from (2).
 
 Paste the code below and run it. Read it before you trust it: which model is used for the propensity score and which for the outcome?
