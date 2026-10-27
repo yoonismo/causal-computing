@@ -201,9 +201,6 @@ Once again there is no formula for the maximizer. Thus we find it numerically: `
 from scipy.stats import norm
 
 def neg_loglik_probit(gamma):
-    #e = norm.cdf(X @ gamma)          # propensity score of every person
-    #e = np.clip(e, 1e-12, 1 - 1e-12)                # avoid log(0)
-    #return -np.sum(D * np.log(e) + (1 - D) * np.log(1 - e))
     return -np.sum(D * norm.logcdf(X @ gamma) + (1 - D) * norm.logcdf(- X @ gamma))
 
 fit = minimize(neg_loglik_probit, x0=np.zeros(X.shape[1]), method="BFGS")
