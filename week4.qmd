@@ -7,7 +7,7 @@ title: "Week 4: The Propensity Score, Weighting and Doubly Robust Estimation"
 After this class, you will be able to:
 
 - explain what the propensity score is and why one number can replace many covariates,
-- estimate the propensity score with a logit and probit model, by hand and with `statsmodels`, and check overlap,
+- estimate the propensity score with logit and probit models, by hand and with `statsmodels`, and check overlap,
 - estimate the ATE and ATT by inverse probability weighting (IPW),
 - estimate a treatment effect by an outcome model with a regression, and explain what goes wrong when the outcome model is misspecified,
 - estimate the two models in the augmented IPW (AIPW) estimator, and explain why it is called doubly robust.
