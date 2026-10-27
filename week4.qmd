@@ -138,30 +138,30 @@ In practice, econometricians and many scientists use specific functional forms s
 We model the propensity score with a **logit**:
 
 $$
-e_{\beta}(x) = \text{Pr} (D_i =1 | X_i = x; \beta)= \frac{1}{1 + \exp(- (\beta_0  + x'\beta_{*}))},
+e_{\gamma}(x) = \text{Pr} (D_i =1 | X_i = x; \gamma)= \frac{1}{1 + \exp(- (\gamma_0  + x'\gamma_{*}))},
 $$
 
-where $x$ is a $d$-dimensional vector in the Euclidean space, $\mathbb{R}^d$. Notice that if we know the coefficients $\beta = [\beta_0, \beta_{*}]^{\top} = [\beta_0, \beta_1, \beta_2, ...\beta_d]^{\top}$, we can compute the propensity score. How do we compute it? We construct the likelihood function $\mathcal{L}(\beta; X):$ 
+where $x$ is a $d$-dimensional vector in the Euclidean space, $\mathbb{R}^d$. Notice that if we know the coefficients $\gamma = [\gamma_0, \gamma_{*}]^{\top} = [\gamma_0, \gamma_1, \gamma_2, ...\gamma_d]^{\top}$, we can compute the propensity score. How do we compute it? We construct the likelihood function $\mathcal{L}(\gamma; X):$ 
 $$
-    \mathcal{L}(\beta; X) = \prod_{i=1}^n [e(X_i)]^{D_i} [1-e(X_i)]^{1-D_i} =  \prod_{i=1}^n [(1 + \exp(- X_i^{\top}\beta))^{-1}]^{D_i} [1-(1 + \exp(- X_i^{\top}\beta))^{-1}]^{1-D_i}
+    \mathcal{L}(\gamma; X) = \prod_{i=1}^n [e(X_i)]^{D_i} [1-e(X_i)]^{1-D_i} =  \prod_{i=1}^n [(1 + \exp(- X_i^{\top}\gamma))^{-1}]^{D_i} [1-(1 + \exp(- X_i^{\top}\gamma))^{-1}]^{1-D_i}
 $$
-We take the log on $\mathcal{L}(\beta; X)$ to make our lives easier. We maximize the log-likelihood $\ell(\beta ; X) = \log \mathcal{L}(\beta; X)$:
+We take the log on $\mathcal{L}(\gamma; X)$ to make our lives easier. We maximize the log-likelihood $\ell(\gamma ; X) = \log \mathcal{L}(\gamma; X)$:
 
 $$
-\ell(\beta) = \sum_{i=1}^{n} \Big[ D_i \log e(X_i) + (1 - D_i) \log\big(1 - e(X_i)\big) \Big].
+\ell(\gamma) = \sum_{i=1}^{n} \Big[ D_i \log e(X_i) + (1 - D_i) \log\big(1 - e(X_i)\big) \Big].
 $$
 
-Even though we seem to have a nice objective function to solve for $\beta$, there is no formula for the maximizer. Thus we find it numerically: `scipy.optimize.minimize` minimizes $-\ell(\beta)$. We start with a simple model that has each covariate once.
+Even though we seem to have a nice objective function to solve for $\gamma$, there is no formula for the maximizer. Thus we find it numerically: `scipy.optimize.minimize` minimizes $-\ell(\gamma)$. We start with a simple model that has each covariate once.
 
 ```python
-def neg_loglik(beta):
-    e = 1 / (1 + np.exp(-X @ beta))                 # propensity score of every person
+def neg_loglik(gamma):
+    e = 1 / (1 + np.exp(-X @ gamma))                # propensity score of every person
     e = np.clip(e, 1e-12, 1 - 1e-12)                # avoid log(0)
     return -np.sum(D * np.log(e) + (1 - D) * np.log(1 - e))
 
 fit = minimize(neg_loglik, x0=np.zeros(X.shape[1]), method="BFGS")
-beta_hand = fit.x
-pd.Series(beta_hand, index=["const"] + simple_vars).round(3)
+gamma_hand = fit.x
+pd.Series(gamma_hand, index=["const"] + simple_vars).round(3)
 ```
 
 ```
@@ -182,33 +182,33 @@ dtype: float64
 We can also use the probit to model the propensity score:
 
 $$
-e(x) = \text{Pr} (D_i =1 | X_i = x ; \beta)= \Phi (x^{\top}\beta) = \int_{-\infty}^{x^{\top}\beta} \frac{1}{\sqrt{2 \pi}}\exp(-\frac{1}{2} z^2)dz ,
+e(x) = \text{Pr} (D_i =1 | X_i = x ; \gamma)= \Phi (x^{\top}\gamma) = \int_{-\infty}^{x^{\top}\gamma} \frac{1}{\sqrt{2 \pi}}\exp(-\frac{1}{2} z^2)dz ,
 $$
 
 Following the same process as in **1.1.1**, we can construct the likelihood with respect to the probit: 
 $$
-    \mathcal{L}(\beta; X) = \prod_{i=1}^n [e(X_i)]^{D_i} [1-e(X_i)]^{1-D_i} =  \prod_{i=1}^n [\Phi (X_i^{\top}\beta)]^{D_i} [1-\Phi (X_i^{\top}\beta)]^{1-D_i}
+    \mathcal{L}(\gamma; X) = \prod_{i=1}^n [e(X_i)]^{D_i} [1-e(X_i)]^{1-D_i} =  \prod_{i=1}^n [\Phi (X_i^{\top}\gamma)]^{D_i} [1-\Phi (X_i^{\top}\gamma)]^{1-D_i}
 $$
-We take the log on $\mathcal{L}(\beta; X)$ again and maximize the log-likelihood $\ell(\beta ; X) = \log \mathcal{L}(\beta; X)$:
+We take the log on $\mathcal{L}(\gamma; X)$ again and maximize the log-likelihood $\ell(\gamma ; X) = \log \mathcal{L}(\gamma; X)$:
 
 $$
-\ell(\beta) = \sum_{i=1}^{n} \Big[ D_i \log e(X_i) + (1 - D_i) \log\big(1 - e(X_i)\big) \Big].
+\ell(\gamma) = \sum_{i=1}^{n} \Big[ D_i \log e(X_i) + (1 - D_i) \log\big(1 - e(X_i)\big) \Big].
 $$
 
-Once again there is no formula for the maximizer. Thus we find it numerically: `scipy.optimize.minimize` minimizes $-\ell(\beta)$. We start with a simple model that has each covariate once.
+Once again there is no formula for the maximizer. Thus we find it numerically: `scipy.optimize.minimize` minimizes $-\ell(\gamma)$. We start with a simple model that has each covariate once.
 
 ```python
 from scipy.stats import norm
 
-def neg_loglik_probit(beta):
-    #e = norm.cdf(X @ beta)          # propensity score of every person
+def neg_loglik_probit(gamma):
+    #e = norm.cdf(X @ gamma)          # propensity score of every person
     #e = np.clip(e, 1e-12, 1 - 1e-12)                # avoid log(0)
     #return -np.sum(D * np.log(e) + (1 - D) * np.log(1 - e))
-    return -np.sum(D * norm.logcdf(X @ beta) + (1 - D) * norm.logcdf(- X @ beta))
+    return -np.sum(D * norm.logcdf(X @ gamma) + (1 - D) * norm.logcdf(- X @ gamma))
 
 fit = minimize(neg_loglik_probit, x0=np.zeros(X.shape[1]), method="BFGS")
-beta_hand_probit = fit.x
-pd.Series(beta_hand_probit, index=["const"] + simple_vars).round(3)
+gamma_hand_probit = fit.x
+pd.Series(gamma_hand_probit, index=["const"] + simple_vars).round(3)
 ```
 
 ```
@@ -232,9 +232,9 @@ probit_simple = smf.probit("d ~ " + " + ".join(simple_vars), data=both).fit(disp
 
 
 pd.DataFrame({
-    "logit, by hand": beta_hand,
+    "logit, by hand": gamma_hand,
     "logit, statsmodels": logit_simple.params.to_numpy(),
-    "probit, by hand": beta_hand_probit,
+    "probit, by hand": gamma_hand_probit,
     "probit, statsmodels": probit_simple.params.to_numpy(),
 }, index=["const"] + simple_vars).round(3)
 ```
@@ -254,7 +254,7 @@ re75k             -0.212              -0.212           -0.092               -0.0
 
 ### 1.2 A more flexible model
 
-If we look at the argument of both models, we use a linear combination of each covariate with the coefficient $\beta$. However, the covariates may have different forms such as polynomials of finite degree. Following the spirit of Dehejia and Wahba (1999), we add squares, a cube of age, the zero-earnings indicators and an interaction. We use this model for the rest of the week.
+If we look at the argument of both models, we use a linear combination of each covariate with the coefficient $\gamma$. However, the covariates may have different forms such as polynomials of finite degree. Following the spirit of Dehejia and Wahba (1999), we add squares, a cube of age, the zero-earnings indicators and an interaction. We use this model for the rest of the week.
 
 ```python
 ps_formula = ("d ~ age + I(age**2) + I(age**3) + educ + I(educ**2) + marr + nodegree + black + hisp"
@@ -846,7 +846,7 @@ pd.Series({
 Experimental benchmark    1794.3
 Naive NSW - CPS          -8497.5
 IPW                       1494.6
-Regression estimator     1165.4
+Regression estimator      1165.4
 AIPW                      1562.4
 Name: ATT, dtype: float64
 ```
