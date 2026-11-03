@@ -83,6 +83,7 @@ However, what if the treatment occurred at a different time to a specific group?
 On April 1, 1992, New Jersey raised its minimum wage from \$4.25 to \$5.05 an hour, while neighboring Pennsylvania stayed at \$4.25. Did the increase change employment in fast-food restaurants? Card and Krueger (1994) wanted to study the effect of the increase in minimum wage on the employment in NJ compared to PA. Based on the common knowledge or theoretical framework, it seemed natural to expect employment to decline after an increase in the minimum wage. To see this, Card and Krueger surveyed 410 fast-food restaurants in both states, using a telephone survey. The survey was done twice: before and after the increase.  
 
 Here, we check which area was the control group and which one was the treatment group, as well as the time of treatment. We see that 
+
 - control group: Pennsylvania, 
 - treatment group: New Jersey, 
 - treatment timing: After April 1, 1992. 
