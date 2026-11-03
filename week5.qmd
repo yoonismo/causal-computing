@@ -88,7 +88,7 @@ Here, we check which area was the control group and which one was the treatment 
 - treatment group: New Jersey, 
 - treatment timing: After April 1, 1992. 
 
-They set up a research question: what is the treatment effect of the increase in the minimum wage on employment in NJ? How did they do this? They used a difference-in-differences framework. 
+They set up a research question: what is the treatment effect of the increase in the minimum wage on employment in NJ? How did they answer this? They used a difference-in-differences framework. 
 
 | | Before | After | Change |
 |---|---|---|---|
