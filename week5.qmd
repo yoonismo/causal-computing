@@ -257,7 +257,7 @@ Difference-in-differences:     2.027   (true effect: 2 )
 
 ## Lab 2 — The same number from a regression
 
-In the long data, regress $Y_i(t)$ on the group indicator $D_i(1)$, the period indicator $t$ and their product:
+We regress $Y_i(t)$ on the group indicator $D_i(1)$, the period indicator $t$ and their product:
 
 $$
 Y_i(t) = \beta_0 + \beta_1 D_i(1) + \beta_2\, t + \tau\, D_i(1) \cdot t + u_i(t), \qquad t \in \{0, 1\}.
