@@ -287,7 +287,7 @@ Regression of the change on treat: 2.027
 
 ## Lab 3 — When parallel trends fails
 
-In Labs 1–2 parallel trends held by construction. Now we break it on purpose: first directly (3.1), then through a covariate (3.2 and 3.3).
+In Labs 1–2 the parallel trends assumpton holds by construction. Now we break it on purpose: first directly (3.1), then through a covariate (3.2 and 3.3).
 
 ### 3.1 An extra trend for the treated
 
