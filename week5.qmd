@@ -234,9 +234,12 @@ means = panel.groupby(["treat", "post"])["y"].mean().unstack()
 print(means.rename(index={0: "control", 1: "treated"}, columns={0: "pre", 1: "post"})
            .rename_axis(index="group", columns="period").round(3))
 
-after_only = means.loc[1, 1] - means.loc[0, 1]                                        # treated vs control, post
-before_after = means.loc[1, 1] - means.loc[1, 0]                                      # treated, post vs pre
-did = (means.loc[1, 1] - means.loc[1, 0]) - (means.loc[0, 1] - means.loc[0, 0])
+mean_pre, mean_post = means[0], means[1]          # one mean per group, before and after
+change = mean_post - mean_pre                     # change over time, for each group
+
+after_only = mean_post[1] - mean_post[0]          # treated vs control, post
+before_after = change[1]                          # treated, post vs pre
+did = change[1] - change[0]                       # difference in the changes
 
 print("Treated vs control, post only:", round(after_only, 3))
 print("Treated, post vs pre:         ", round(before_after, 3))
