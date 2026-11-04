@@ -257,7 +257,7 @@ Difference-in-differences:     2.027   (true effect: 2 )
 
 ## Lab 2 — The same number from a regression
 
-We regress $Y_i(t)$ on the group indicator $D_i(1)$, the period indicator $t$ and their product:
+We can also use a linear regression model to illustrate the observed outcomes in a DiD research design. We regress $Y_i(t)$ on the group indicator $D_i(1)$, the period indicator $t$ and their product:
 
 $$
 Y_i(t) = \beta_0 + \beta_1 D_i(1) + \beta_2\, t + \tau\, D_i(1) \cdot t + u_i(t), \qquad t \in \{0, 1\}.
@@ -287,7 +287,7 @@ Regression of the change on treat: 2.027
 
 ## Lab 3 — When parallel trends fails
 
-In Labs 1–2 the parallel trends assumpton holds by construction. Now we break it on purpose: first directly (3.1), then through a covariate (3.2 and 3.3).
+In Labs 1–2, the parallel trends assumption holds by construction. Now we break it on purpose: first directly (3.1), then through a covariate (3.2).
 
 ### 3.1 An extra trend for the treated
 
@@ -362,42 +362,6 @@ Share treated: 0.468
 Mean of X, treated: 0.358   controls: -0.329
 DiD without covariates: 2.915   (true effect: 2 )
 ```
-
-### 3.3 Comparing units with the same $X$
-
-Plot the average change $\Delta Y_i$ against $X_i$, separately for the two groups. Within a narrow range of $X_i$, the two groups should differ only by the effect.
-
-```python
-sim = pd.DataFrame({"x": x, "d": d, "dy": dy})
-sim["x_bin"] = pd.cut(sim["x"], bins=np.arange(-3, 3.01, 0.25))           # bins of width 0.25
-binned = sim.groupby(["x_bin", "d"], observed=True)["dy"].mean().unstack()
-mid = [b.mid for b in binned.index]
-
-plt.plot(mid, binned[0], "o-", color="#eb6834", label="controls")
-plt.plot(mid, binned[1], "o-", color="#2a78d6", label="treated")
-plt.xlabel("X")
-plt.ylabel("Average change in Y")
-plt.legend()
-plt.show()
-```
-
-![](images/week5/change_by_x.png)
-
-The two curves are parallel: at every $X$, the treated changed by about 2 more than the controls. This suggests a first fix from first principles: compute the DiD **within each bin**, and average the bin DiDs with weights equal to the number of **treated** units in each bin (we want the effect on the treated).
-
-```python
-by_bin = sim.groupby(["x_bin", "d"], observed=True)["dy"].agg(["mean", "size"]).unstack()
-by_bin = by_bin.dropna()                                     # keep bins with both groups
-did_bin = by_bin[("mean", 1)] - by_bin[("mean", 0)]
-n_treated = by_bin[("size", 1)]
-print("DiD within bins, averaged over the treated:", round((did_bin * n_treated).sum() / n_treated.sum(), 3))
-```
-
-```
-DiD within bins, averaged over the treated: 1.988
-```
-
-**Question 3.** Why is the DiD without covariates off, although the treatment effect is the same for everyone and the levels $10 + 2X_i$ cancel? Why does the binned DiD work? What would go wrong with this approach with ten covariates?
 
 ## Covariates and conditional parallel trends
 
@@ -475,6 +439,7 @@ The procedure of estimation (following Cunningham, 2026, Chapter 10, "Outcome re
 We use the simulation of Lab 3.2, where $m_0(x) = 1 + x + x^2$, and fit the model with $X_i$ and $X_i^2$.
 
 ```python
+sim = pd.DataFrame({"x": x, "d": d, "dy": dy})              # the simulation of Lab 3.2
 controls = sim[sim["d"] == 0]
 m0_model = smf.ols("dy ~ x + I(x**2)", data=controls).fit()     # step 1: fit on the controls only
 sim["m0_hat"] = m0_model.predict(sim)                           # step 2: predict for everyone
@@ -492,24 +457,7 @@ dtype: float64
 Regression DiD: 1.97   (true effect: 2 )
 ```
 
-A picture of the three steps: the average change by bins of $X$ (as in Lab 3.3), and the fitted $\hat m_0(x)$ from the controls.
-
-```python
-grid = pd.DataFrame({"x": np.linspace(-3, 3, 121)})
-plt.plot(mid, binned[0], "o", color="#eb6834", label="controls (bin means)")
-plt.plot(mid, binned[1], "o", color="#2a78d6", label="treated (bin means)")
-plt.plot(grid["x"], m0_model.predict(grid), color="#eb6834", label=r"fitted $\hat m_0(x)$, from the controls")
-plt.xlabel("X")
-plt.ylabel("Average change in Y")
-plt.legend()
-plt.show()
-```
-
-![](images/week5/regression_m0.png)
-
-The orange curve is $\hat m_0$: the change of the controls as a function of $X$. For a treated unit with covariates $X_i$, it is our guess of the change **without** the treatment. The regression DiD averages the vertical distance between the treated and the curve over the treated units, about 2. The curve is fitted on the controls only; conditional parallel trends is what lets us use it for the treated.
-
-**Question 4.** Why is $\hat m_0$ fitted on the control group only, and which assumption lets us use it for the treated? What could go wrong for treated units whose $X_i$ is a value that few controls have?
+**Question 3.** Why is $\hat m_0$ fitted on the control group only, and which assumption lets us use it for the treated? What could go wrong for treated units whose $X_i$ is a value that few controls have?
 
 ## Lab 5 — Inverse probability weighting in DiD
 
@@ -545,7 +493,7 @@ The procedure of estimation (following Cunningham, 2026, Chapter 10):
 3. Give each control unit the weight $\hat\omega_i$; the treated keep the weight 1.
 4. Subtract the weighted average change of the controls from the average change of the treated. (The Hájek form divides by the sum of the weights of the controls.)
 
-One number per unit, $\hat e(X_i)$, replaces the bins of Lab 3.3. We fit a logit of $D_i(1)$ on $X_i$ and $X_i^2$ (the form used in the simulation) and reweight the controls by the odds $\hat\omega_i$.
+We fit a logit of $D_i(1)$ on $X_i$ and $X_i^2$ (the form used in the simulation) and reweight the controls by the odds $\hat\omega_i$.
 
 ```python
 def fit_e(design):
@@ -587,7 +535,7 @@ plt.show()
 
 ![](images/week5/weighted_x.png)
 
-After weighting, the controls have almost the same distribution of $X$ as the treated. In this simulation the trend without treatment depends only on $X$, so the weighted controls also have the trend the treated would have had without the treatment. That is the same idea as the bins in Lab 3.3, but with one weight per unit instead of one comparison per bin.
+After weighting, the controls have almost the same distribution of $X$ as the treated. In this simulation the trend without treatment depends only on $X$, so the weighted controls also have the trend the treated would have had without the treatment.
 
 Now the trends themselves, as in Lab 3.1: the average outcome before and after for the controls, the weighted controls, the treated, and the treated **without** the treatment.
 
@@ -621,7 +569,7 @@ treated without treatment (truth)   change: 2.480
 
 Without weights, the controls change by much less than the treated would have without the treatment, because they have smaller $X$ and the trend grows with $X$. After weighting, the controls' change is close to that of the treated without the treatment: the dashed burgundy line runs almost on top of the dotted blue line. The IPW DiD is the treated change minus the **weighted** control change. Since the level $10 + 2X_i$ also depends on $X$, the weights move the level of the controls too, but DiD only uses the change.
 
-**Question 5.** Explain in words what the weights do to the control group, using the balance check. Which controls get the largest weights?
+**Question 4.** Explain in words what the weights do to the control group, using the balance check. Which controls get the largest weights?
 
 ## Lab 6 — Functional form and doubly robust DiD
 
@@ -696,7 +644,7 @@ PS model right  2.113         1.975         2.104
 PS model wrong  2.435         1.971         2.408
 ```
 
-**Question 6.** Which numbers are close to 2? Relate each one to the doubly robust property. Why is the single OLS with $X_i$ off?
+**Question 5.** Which numbers are close to 2? Relate each one to the doubly robust property. Why is the single OLS with $X_i$ off?
 
 ## Lab 7 — Back to job training
 
@@ -763,7 +711,7 @@ Doubly robust DiD         1992.7
 Name: ATT, dollars, dtype: float64
 ```
 
-**Question 7.** Compare the DiD without covariates with the 1978-only comparison and with the benchmark. What did taking the change already remove? What did the covariates add? Would you trust these estimates more or less than the Week 4 estimates, and why?
+**Question 6.** Compare the DiD without covariates with the 1978-only comparison and with the benchmark. What did taking the change already remove? What did the covariates add? Would you trust these estimates more or less than the Week 4 estimates, and why?
 
 ## Lab 8 — (Optional) Let a package do it
 
@@ -790,7 +738,7 @@ moderndid, doubly robust DiD: 1992.7   standard error: 656.7
 By hand (Lab 7):              1992.7
 ```
 
-**Question 8.** Does the package agree with your number? Is the benchmark inside the 95% confidence interval?
+**Question 7.** Does the package agree with your number? Is the benchmark inside the 95% confidence interval?
 
 ## Summary
 
