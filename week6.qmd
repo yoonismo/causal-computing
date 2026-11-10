@@ -400,14 +400,15 @@ late = effect[late_sim["type"] == "complier"].mean()
 att = effect[late_sim["d"] == 1].mean()
 
 g = late_sim.groupby("z")[["d", "y"]].mean()
-fs_late = g.loc[1, "d"] - g.loc[0, "d"]
-wald_late = (g.loc[1, "y"] - g.loc[0, "y"]) / fs_late
+diff = g.loc[1] - g.loc[0]                    # change in mean D and in mean Y from Z = 0 to Z = 1
+fs_late = diff["d"]
+wald_late = diff["y"] / fs_late
 ols_late = late_sim.loc[late_sim["d"] == 1, "y"].mean() - late_sim.loc[late_sim["d"] == 0, "y"].mean()
 
 print("Truth:  ATE", round(ate, 3), "  ATT", round(att, 3), "  LATE (compliers)", round(late, 3))
 print("Data:   difference in means by D", round(ols_late, 3), "  Wald", round(wald_late, 3))
 print("Shares from the data: compliers", round(fs_late, 3),
-      "  always-takers", round(g.loc[0, "d"], 3), "  never-takers", round(1 - g.loc[1, "d"], 3))
+      "  always-takers", round(g["d"][0], 3), "  never-takers", round(1 - g["d"][1], 3))
 ```
 
 ```
