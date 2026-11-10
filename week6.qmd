@@ -418,41 +418,7 @@ Shares from the data: compliers 0.499   always-takers 0.202   never-takers 0.299
 
 **Question 3.** Which of the three true effects does the Wald ratio recover? Why can the data never tell us the effect for the never-takers, whatever estimator we use?
 
-## Lab 4 — Who are the compliers?
-
-LATE is the effect for the compliers, but we cannot point to any single complier. We **can** describe them on average. Under independence and monotonicity:
-
-$$
-\begin{align*}
-P(\text{complier}) &= E[D_i \mid Z_i = 1] - E[D_i \mid Z_i = 0], \\
-E[X_i \mid \text{complier}] &= \frac{E[X_i D_i \mid Z_i = 1] - E[X_i D_i \mid Z_i = 0]}{E[D_i \mid Z_i = 1] - E[D_i \mid Z_i = 0]},
-\end{align*}
-$$
-
-for any characteristic $X_i$ measured before the instrument. We check it in the Lab 3 simulation with a characteristic that differs by type, say age.
-
-```python
-age_by_type = {"always": 30, "complier": 25, "never": 35}
-late_sim["age"] = late_sim["type"].map(age_by_type) + rng.normal(0, 3, len(late_sim))
-
-def complier_mean(x, d, z):
-    xd = x * d
-    return (xd[z == 1].mean() - xd[z == 0].mean()) / (d[z == 1].mean() - d[z == 0].mean())
-
-print("Mean age, everyone:            ", round(late_sim["age"].mean(), 2))
-print("Mean age, compliers (truth):   ", round(late_sim.loc[late_sim["type"] == "complier", "age"].mean(), 2))
-print("Mean age, compliers (formula): ", round(complier_mean(late_sim["age"], late_sim["d"], late_sim["z"]), 2))
-```
-
-```
-Mean age, everyone:             29.0
-Mean age, compliers (truth):    25.0
-Mean age, compliers (formula):  25.0
-```
-
-**Question 4.** Which assumptions does the formula use? Why does it matter for policy that the compliers in this simulation are younger than the population on average?
-
-## Lab 5 — Data: college proximity and the return to schooling
+## Lab 4 — Data: college proximity and the return to schooling
 
 Card (1995) asked how much an extra year of schooling raises wages. Schooling is chosen, and ability affects both schooling and wages. His instrument: whether a man grew up in a county with a four-year college (`nearc4`). Living near a college makes college cheaper, so it may raise schooling; the argument is that it affects wages **only** through schooling. The data come with the `causaldata` package (data set `close_college`): men from the National Longitudinal Survey of Young Men, with log wages in 1976.
 
@@ -495,13 +461,13 @@ Wald, no controls:      0.188   (first stage 0.829 , reduced form 0.156 )
 First-stage F (2SLS):   17.3
 ```
 
-**Question 5.** Is the 2SLS estimate larger or smaller than OLS? If ability bias pushes OLS **up**, how can 2SLS be larger? Think about whose schooling is changed by a nearby college.
+**Question 4.** Is the 2SLS estimate larger or smaller than OLS? If ability bias pushes OLS **up**, how can 2SLS be larger? Think about whose schooling is changed by a nearby college.
 
 ## Two common IV designs
 
 Where do instruments come from in practice? Chapter 7 of the Mixtape describes five common designs: lotteries, judge fixed effects, Bartik instruments, fuzzy regression discontinuity, and the elasticity of demand. We look at two of them: lotteries and fuzzy regression discontinuity.
 
-## Lab 6 — Lotteries: incentives to learn one's HIV status
+## Lab 5 — Lotteries: incentives to learn one's HIV status
 
 Thornton (2008) ran an experiment in rural Malawi: after an HIV test, people were **randomly** offered cash incentives of different sizes to come back and learn their result, and the distance to the results center was also randomly assigned. Without any incentive, 34 percent learned their result; even the smallest incentive doubled that share. The incentive is a lottery that moves the treatment "learned HIV status" (`got`) without forcing it. The data are in `causaldata` (`thornton_hiv`).
 
@@ -526,7 +492,17 @@ First stage = share of compliers: 0.45
 Always-takers: 0.34   never-takers: 0.211
 ```
 
+LATE is the effect for the compliers, but we cannot point to any single complier. We **can** describe them on average. Under independence and monotonicity, for any characteristic $X_i$ measured before the instrument,
+
+$$
+E[X_i \mid \text{complier}] = \frac{E[X_i D_i \mid Z_i = 1] - E[X_i D_i \mid Z_i = 0]}{E[D_i \mid Z_i = 1] - E[D_i \mid Z_i = 0]}.
+$$
+
 ```python
+def complier_mean(x, d, z):
+    xd = x * d
+    return (xd[z == 1].mean() - xd[z == 0].mean()) / (d[z == 1].mean() - d[z == 0].mean())
+
 for col in ["age", "hiv2004"]:
     print(f"{col}: everyone {hiv[col].mean():.3f}   compliers {complier_mean(hiv[col], hiv['got'], hiv['any']):.3f}")
 ```
@@ -564,9 +540,9 @@ tinc_bin
 
 ![](images/week6/incentive_curve.png)
 
-**Question 6.** Does the share who learned their result reach 1 for the largest incentives? Relate your answer to the idea that IV can identify the average effect for the **whole** population only if the instrument can push (almost) everyone into treatment.
+**Question 5.** Does the share who learned their result reach 1 for the largest incentives? Relate your answer to the idea that IV can identify the average effect for the **whole** population only if the instrument can push (almost) everyone into treatment.
 
-## Lab 7 — A first taste of fuzzy regression discontinuity
+## Lab 6 — A first taste of fuzzy regression discontinuity
 
 Next week is regression discontinuity (RD). Here is the link to IV. Suppose a program is **offered** to everyone whose score $R_i$ is at or above a cutoff, here $0$, but not everyone who is offered takes it, and a few below the cutoff get in anyway. The probability of treatment **jumps** at the cutoff, but not from 0 to 1. This is a **fuzzy** RD.
 
@@ -632,13 +608,13 @@ print("Same thing with 2SLS: ", round(iv_rd.params["d"], 3), "  standard error",
 ```
 
 ```
-Jump in the outcome:   0.952
-Jump in the treatment: 0.395
-Ratio:                 2.408   (true effect: 2)
-Same thing with 2SLS:  2.408   standard error 0.155
+Jump in the outcome:   0.728
+Jump in the treatment: 0.369
+Ratio:                 1.975   (true effect: 2)
+Same thing with 2SLS:  1.975   standard error 0.174
 ```
 
-**Question 7.** Which assumption plays the role of independence here? Whose effect is $\tau_{\text{FRD}}$: everyone's, or that of a particular group at a particular value of $R$? What do you think happens if we make the window $h$ much larger or much smaller?
+**Question 6.** Which assumption plays the role of independence here? Whose effect is $\tau_{\text{FRD}}$: everyone's, or that of a particular group at a particular value of $R$? What do you think happens if we make the window $h$ much larger or much smaller?
 
 ## Summary
 
