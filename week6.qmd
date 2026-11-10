@@ -298,7 +298,14 @@ In Lab 1 everyone had the same effect. In reality the effect of service, or of s
 $$
     \delta_i = Y_i(1) - Y_i(0)
 $$
-One can say that the treatment effect is heterogeneous when the ITE differs across units. If you think about it, this is a more natural assumption. People receive different treatment effects due to their demographics (observables) and culture and/or philosophy (unobservables). Since the treatment assignment is not random due to such observables and unobservables, it is difficult to identify the true treatment effect. The IV strategy enables us to use the randomness to explain the variation in the treatment. However, two of the assumptions for a valid IV is that one, it must be relevant to the treatment, and two, any effect of a candidate IV on the outcome must be via the treatment variable. This means that there is a mechanism through wich people react to the IV: depending on the realization of randomness represented by an IV, people "decide." That is, people can "comply" with the realization, or react in the opposite way, or in many different ways. To explain and represent it, what framework do we need? As a result, what does the Wald ratio estimate under this framework? 
+One can say that the treatment effect is heterogeneous when the ITE differs across units. If you think about it, this is a more natural assumption. People receive different treatment effects due to their demographics (observables) and culture and/or philosophy (unobservables). 
+
+Since the treatment assignment is not random due to such observables and unobservables, it is difficult to identify the true treatment effect. The IV strategy enables us to use the randomness to explain the variation in the treatment. However, two of the assumptions for a valid IV is that 
+
+- one, it must be relevant to the treatment, and 
+- two, any effect of a candidate IV on the outcome must be via the treatment variable. 
+
+This means that there is a mechanism through wich people react to the IV: depending on the realization of randomness represented by an IV, people "decide." That is, people can "comply" with the realization, or react in the opposite way, or in many different ways. To explain and represent it, what framework do we need? As a result, what does the Wald ratio estimate under this framework? 
 
 Imbens and Angrist (1994) gave the answer.
 
