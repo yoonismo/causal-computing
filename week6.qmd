@@ -98,7 +98,7 @@ D_i &= \begin{cases} 1 & \text{if } i \text{ served in the military,} \\ 0 & \te
 \end{align*}
 $$
 
-![](images/week6/iv_dag.svg){fig-alt="Z causes D, D causes Y, and an unobserved U causes both D and Y; Z is not connected to U."}
+![](images/week6/iv_dag.svg){fig-alt="Z causes D, D causes Y, and an unobserved U causes both D and Y; Z is not connected to U." fig-align="center"}
 
 $U$ stands for everything unobserved that affects both service and earnings. Because of $U$, comparing $Y$ across $D$ is biased. Why? The lottery number was drawn at random, so $Z$ is not connected to $U$.
 
