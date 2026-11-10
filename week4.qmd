@@ -54,7 +54,7 @@ All the code on this page is in the notebook `week4.ipynb` in the [`week4-starte
 6. In Visual Studio Code, choose **File → Open Folder…** and open the new `week4` folder (the folder, not just one file).
 7. Open `week4.ipynb`. Click **Select Kernel** → **Jupyter Kernel…** → **ECON 481 (Python 3.12)**.
 
-Run the cells in order as you read this page, and write your answers to the questions in the notebook. In Lab 6 the notebook asks you to paste code from your AI assistant into a cell marked `# TODO`, followed by a **check** cell that prints `not done yet` until you fill it in. The notebook downloads the data from the internet, so you need a connection.
+Run the cells in order as you read this page, and write your answers to the questions in the notebook. In Lab 6 the notebook asks you to paste code from your AI assistant into a cell marked `# TODO`, followed by a **check** cell that prints `not done yet` until you fill it in. The data come with the `causaldata` package, so you need an internet connection only to install the packages.
 
 First, we fix the random seed for reproducibility.
 
@@ -855,6 +855,12 @@ Name: ATT, dtype: float64
 
 **Question 8.** Which estimates are close to the benchmark? None of them comes with a standard error here. What would you need before concluding that one method "works" on these data?
 
+### Hands-on exercise: replicate Hernán and Robins, Chapter 12
+
+[Download the exercise notebook (`week34_NHEFS_exercise.ipynb`)](_hands_on_exercise/week34_NHEFS_exercise.ipynb){download="week34_NHEFS_exercise.ipynb"}
+
+You now have everything you need for this exercise: it repeats the steps of Weeks 3 and 4 on a different observational study. Does quitting smoking cause weight gain? The notebook checks the balance of the covariates, matches each quitter to the most similar non-quitter, and estimates the effect with the propensity score, IPW, the regression estimator and AIPW, and compares the IPW estimate with the one in Hernán and Robins, *Causal Inference: What If*, Chapter 12. Save the notebook in your course folder, open it in Visual Studio Code, and choose the **ECON 481 (Python 3.12)** kernel. The data come with the `causaldata` package.
+
 In Week 5, we will study difference-in-differences.
 
 ## References
@@ -865,6 +871,7 @@ In Week 5, we will study difference-in-differences.
 - Crump, R. K., Hotz, V. J., Imbens, G. W., and Mitnik, O. A. (2009). Dealing with limited overlap in estimation of average treatment effects. *Biometrika*, 96(1), 187–199.
 - Cunningham, S. (2026). *Causal Inference: The Remix*. Yale University Press. Chapter 5 (Unconfoundedness). <https://mixtape.scunning.com/05-causal_cross_sectional_designs>
 - Dehejia, R. H., and Wahba, S. (1999). Causal effects in nonexperimental studies: Reevaluating the evaluation of training programs. *Journal of the American Statistical Association*, 94(448), 1053–1062.
+- Hernán, M. A., and Robins, J. M. *Causal Inference: What If*. Chapman & Hall/CRC. Chapter 12 (IP weighting). <https://miguelhernan.org/whatifbook>
 - Hirano, K., and Imbens, G. W. (2001). Estimation of causal effects using propensity score weighting: An application to data on right heart catheterization. *Health Services and Outcomes Research Methodology*, 2(3–4), 259–278.
 - Hirano, K., Imbens, G. W., and Ridder, G. (2003). Efficient estimation of average treatment effects using the estimated propensity score. *Econometrica*, 71(4), 1161–1189.
 - Horvitz, D. G., and Thompson, D. J. (1952). A generalization of sampling without replacement from a finite universe. *Journal of the American Statistical Association*, 47(260), 663–685. <https://doi.org/10.1080/01621459.1952.10483446> (overview: <https://en.wikipedia.org/wiki/Horvitz–Thompson_estimator>)
