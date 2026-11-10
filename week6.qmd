@@ -160,7 +160,7 @@ Looking at it differently, we can estimate it using OLS:
 
 $$
   \begin{align*}
-        \beta_{\text{OLS}} =& \frac{\text{Cov}[Y_i, D_i]}{\text{Var}[D_i]}\\
+        \delta_{\text{OLS}} =& \frac{\text{Cov}[Y_i, D_i]}{\text{Var}[D_i]}\\
                           =& \frac{\text{Cov}[\alpha + \delta D_i + \gamma U_i + \epsilon_i,  D_i]}{\text{Var}[D_i]}\\
                           =& \frac{\text{Cov}[\alpha, D_i]}{\text{Var}[D_i]} + \frac{\text{Cov}[\delta D_i, D_i]}{\text{Var}[D_i]} + \frac{\text{Cov}[\gamma U_i, D_i]}{\text{Var}[D_i]} + \frac{\text{Cov}[\epsilon_i, D_i]}{\text{Var}[D_i]}\\
                           =& \delta + \gamma \frac{\text{Cov}[U_i, D_i]}{\text{Var}[D_i]}\\
