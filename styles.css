@@ -15,3 +15,7 @@ mjx-container[display="true"] { overflow-x: auto; overflow-y: hidden; max-width:
 
 /* Week 4 IPW derivations (inside the "Derivation" callouts): both derivations start at the same left edge */
 .derivation mjx-container[display="true"] { text-align: left !important; }
+
+/* Week 6 "Four types of people" table: a little smaller so each description fits on one line */
+.compact-table table { font-size: 0.88rem; }
+.compact-table th, .compact-table td { padding-left: 0.35rem; padding-right: 0.35rem; }

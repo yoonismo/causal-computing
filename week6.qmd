@@ -98,11 +98,7 @@ D_i &= \begin{cases} 1 & \text{if } i \text{ served in the military,} \\ 0 & \te
 \end{align*}
 $$
 
-```
-Z ──► D ──► Y
-      ▲     ▲
-      └─ U ─┘
-```
+![](images/week6/iv_dag.svg){fig-alt="Z causes D, D causes Y, and an unobserved U causes both D and Y; Z is not connected to U."}
 
 $U$ stands for everything unobserved that affects both service and earnings. Because of $U$, comparing $Y$ across $D$ is biased. Why? The lottery number was drawn at random, so $Z$ is not connected to $U$.
 
@@ -113,7 +109,8 @@ $$
     Y_i = \alpha + \delta D_i + \gamma U_i + \epsilon_i, 
 $$
 
-where 
+where
+
 - $U_i$: relevant, but unobserved variable that affects both $D_i$ and $Y_i$.
 - $D_i$: treatment variable that depends on $U_i$ (and on other things),
 - $Y_i$: outcome variable depending on both $D_i$ and $U_i$.
@@ -124,9 +121,10 @@ $$
     Y_i = \alpha + \delta D_i + \xi_i
 $$
 
-where $\xi_i = \gamma U_i + \epsilon_i $. 
+where $\xi_i = \gamma U_i + \epsilon_i$. 
 
 Let's assume all the three identification assumptions for causal effects:
+
 - consistency: $Y_i = D_i Y_i(1) + (1 - D_i)\, Y_i(0)$,
 - unconfoundedness given $U_i$: $\{Y_i(1), Y_i(0)\} \perp D_i \mid U_i$,
 - overlap: $0 < P(D_i = 1 \mid U_i) < 1$,
@@ -308,19 +306,24 @@ Imbens and Angrist (1994) gave the answer.
 
 We use the notation of the Mixtape. For a binary instrument $Z_i \in \{0, 1\}$ and binary treatment $D_i \in \{0, 1\}$:
 
-- **Potential treatment status:** $D_i^1$ is $i$'s treatment status when $Z_i = 1$, and $D_i^0$ when $Z_i = 0$. We observe $D_i = Z_i D_i^1 + (1 - Z_i) D_i^0$.
+- **Potential treatment status:** $D_i^1$ is $i$'s treatment status when $Z_i = 1$, and $D_i^0$ when $Z_i = 0$.\
+  We observe $D_i = Z_i D_i^1 + (1 - Z_i) D_i^0$.
 - **Potential outcomes** have two arguments, the treatment and the instrument: $Y_i(d, z)$. We observe $Y_i = Y_i(D_i, Z_i)$.
 
 ### Four types of people
 
 Each person has a pair $(D_i^1, D_i^0)$: what they would do with and without the instrument. There are four possible pairs:
 
+::: {.compact-table}
+
 | type | $D_i^1$ | $D_i^0$ | meaning | in the draft example |
-|---|---|---|---|---|
+|:----------------|:-----:|:-----:|:------------------------------|:--------------------------------------------|
 | complier | 1 | 0 | follows $Z_i$ | serves only if draft-eligible |
 | always-taker | 1 | 1 | always do | volunteers anyway |
 | never-taker | 0 | 0 | always don't | never serves (e.g., a medical exemption) |
 | defier | 0 | 1 | react in the opposite to $Z_i$ | serves only if **not** draft-eligible |
+
+:::
 
 We never see both $D_i^1$ and $D_i^0$ for the same person, so we cannot tell each person's type from the data.
 
@@ -345,99 +348,6 @@ $$
 $$
 
 The Wald ratio is the average effect **for the compliers**: the people whose treatment the instrument changes. It says nothing about always-takers or never-takers.
-
-::::: {.callout-note collapse="true"}
-## Derivation (click to expand)
-
-::: {.derivation}
-**1. The first stage: $E[D_i \mid Z_i = 1] - E[D_i \mid Z_i = 0] = E[D_i^1 - D_i^0]$**
-
-Write the observed treatment with the potential treatment status:
-$$D_i = D_i^0 + (D_i^1 - D_i^0)\, Z_i.$$
-Then
-$$
-\begin{align*}
-E[D_i \mid Z_i = 1] &= E[D_i^0 \mid Z_i = 1] + E[D_i^1 - D_i^0 \mid Z_i = 1], \\
-E[D_i \mid Z_i = 0] &= E[D_i^0 \mid Z_i = 0],
-\end{align*}
-$$
-so
-$$
-E[D_i \mid Z_i = 1] - E[D_i \mid Z_i = 0] = E[D_i^0 \mid Z_i = 1] - E[D_i^0 \mid Z_i = 0] + E[D_i^1 - D_i^0 \mid Z_i = 1].
-$$
-By independence, $Z_i \perp D_i^0$, so $E[D_i^0 \mid Z_i = 1] = E[D_i^0] = E[D_i^0 \mid Z_i = 0]$ and the first two terms cancel. Also $Z_i \perp D_i^1$, so $E[D_i^1 - D_i^0 \mid Z_i = 1] = E[D_i^1 - D_i^0]$. Hence
-$$
-E[D_i \mid Z_i = 1] - E[D_i \mid Z_i = 0] = E[D_i^1 - D_i^0],
-$$
-the average effect of $Z_i$ on $D_i$. Each person's $D_i^1 - D_i^0$ is that person's own effect of $Z_i$ on $D_i$, which can differ across people.
-
-**Why the OLS slope of $D_i$ on $Z_i$ gives the same number.** Let $p = P(Z_i = 1)$, so $E[Z_i] = p$ and $\text{Var}[Z_i] = p(1 - p)$. Using $Z_i^2 = Z_i$,
-$$
-\begin{align*}
-\text{Cov}[D_i, Z_i] &= E[D_i Z_i] - E[D_i]\, E[Z_i] \\
-&= E[D_i^0 Z_i] + E[(D_i^1 - D_i^0) Z_i^2] - E[D_i^0]\, E[Z_i] - E[(D_i^1 - D_i^0) Z_i]\, E[Z_i] \\
-&= \underbrace{\text{Cov}[D_i^0, Z_i]}_{=\,0 \text{ by independence}} + E[(D_i^1 - D_i^0) Z_i]\,(1 - p).
-\end{align*}
-$$
-Since $E[(D_i^1 - D_i^0) Z_i] = E[D_i^1 - D_i^0 \mid Z_i = 1]\, p$,
-$$
-\text{Cov}[D_i, Z_i] = E[D_i^1 - D_i^0 \mid Z_i = 1]\, p(1 - p)
-\quad\Longrightarrow\quad
-\frac{\text{Cov}[D_i, Z_i]}{\text{Var}[Z_i]} = E[D_i^1 - D_i^0 \mid Z_i = 1] = E[D_i^1 - D_i^0].
-$$
-
-**2. The reduced form and the LATE theorem**
-
-Let $\delta_i = Y_i(1) - Y_i(0)$. We observe $Y_i = Y_i(1) D_i + Y_i(0)(1 - D_i) = Y_i(0) + \delta_i D_i$. When $Z_i = 1$ we have $D_i = D_i^1$, and when $Z_i = 0$ we have $D_i = D_i^0$, so
-$$
-\begin{align*}
-E[Y_i \mid Z_i = 1] &= E[Y_i(0) \mid Z_i = 1] + E[\delta_i D_i^1 \mid Z_i = 1], \\
-E[Y_i \mid Z_i = 0] &= E[Y_i(0) \mid Z_i = 0] + E[\delta_i D_i^0 \mid Z_i = 0].
-\end{align*}
-$$
-
-**Step 1: the $Y_i(0)$ terms cancel.** Under the exclusion restriction and independence,
-$$
-E[Y_i(0) \mid Z_i = 1] = E[Y_i(0, 1) \mid Z_i = 1] \overset{\text{exclusion}}{=} E[Y_i(0, 0) \mid Z_i = 1] \overset{\text{independence}}{=} E[Y_i(0, 0) \mid Z_i = 0].
-$$
-and the right-hand side is $E[Y_i(0) \mid Z_i = 0]$. Hence
-$$
-E[Y_i \mid Z_i = 1] - E[Y_i \mid Z_i = 0] = E[\delta_i D_i^1 \mid Z_i = 1] - E[\delta_i D_i^0 \mid Z_i = 0].
-$$
-
-**Step 2: drop the conditioning on $Z_i$.** By independence,
-$$
-E[\delta_i D_i^1 \mid Z_i = 1] - E[\delta_i D_i^0 \mid Z_i = 0] = E[\delta_i D_i^1] - E[\delta_i D_i^0] = E[\delta_i (D_i^1 - D_i^0)].
-$$
-
-**Step 3: split by type.** $D_i^1 - D_i^0$ takes three values: $1$ for compliers, $-1$ for defiers, and $0$ for always-takers and never-takers. By the law of iterated expectations,
-$$
-\begin{align*}
-E[\delta_i (D_i^1 - D_i^0)]
-&= E[\delta_i \mid D_i^1 - D_i^0 = 1]\, P(D_i^1 = 1, D_i^0 = 0) && \text{(compliers)} \\
-&\quad + E[-\delta_i \mid D_i^1 - D_i^0 = -1]\, P(D_i^1 = 0, D_i^0 = 1) && \text{(defiers)} \\
-&\quad + 0 \cdot P(D_i^1 = 1, D_i^0 = 1) + 0 \cdot P(D_i^1 = 0, D_i^0 = 0) && \text{(always- and never-takers)} \\
-&= P(\text{complier})\, E[\delta_i \mid \text{complier}] - P(\text{defier})\, E[\delta_i \mid \text{defier}].
-\end{align*}
-$$
-The same split applied to $D_i^1 - D_i^0$ itself gives the first stage from Section 1:
-$$
-E[D_i^1 - D_i^0] = P(\text{complier}) - P(\text{defier}).
-$$
-
-**Step 4: monotonicity.** With $D_i^1 \geq D_i^0$ for all $i$, there are no defiers: $P(\text{defier}) = 0$. Then the reduced form is $P(\text{complier})\, E[\delta_i \mid \text{complier}]$ and the first stage is $P(\text{complier})$, which is nonzero by the nonzero first stage assumption. Therefore
-$$
-\frac{E[Y_i \mid Z_i = 1] - E[Y_i \mid Z_i = 0]}{E[D_i \mid Z_i = 1] - E[D_i \mid Z_i = 0]}
-= \frac{P(\text{complier})\, E[\delta_i \mid \text{complier}]}{P(\text{complier})}
-= E[Y_i(1) - Y_i(0) \mid D_i^1 - D_i^0 = 1].
-$$
-
-**Two remarks.**
-
-- If monotonicity holds in the other direction ($D_i^1 \leq D_i^0$ for all $i$), there are no compliers. The reduced form is $-P(\text{defier})\, E[\delta_i \mid \text{defier}]$ and the first stage is $-P(\text{defier})$. The two minus signs cancel, so the Wald ratio itself equals $E[\delta_i \mid \text{defier}]$. Relabeling $Z_i$ as $1 - Z_i$ turns these defiers into compliers.
-- For always-takers and never-takers, $\delta_i$ is multiplied by $D_i^1 - D_i^0 = 0$ in Step 3, so they appear in neither the numerator nor the denominator. The Wald ratio says nothing about their effect. If everyone were an always-taker or a never-taker, the first stage would be $0$ and the Wald ratio would be undefined.
-:::
-:::::
 
 ## Lab 3 — LATE in a simulation
 
