@@ -351,7 +351,7 @@ Under the five assumptions, the Wald IV estimator identifies the average treatme
 
 
 $$
-\frac{E[Y_i \mid Z_i = 1] - E[Y_i \mid Z_i = 0]}{E[D_i \mid Z_i = 1] - E[D_i \mid Z_i = 0]}
+\tau_{\text{LATE}}^{\text{Wald}} = \frac{E[Y_i \mid Z_i = 1] - E[Y_i \mid Z_i = 0]}{E[D_i \mid Z_i = 1] - E[D_i \mid Z_i = 0]}
 = E\big[Y_i(1) - Y_i(0) \mid D_i^1 - D_i^0 = 1\big].
 $$
 
