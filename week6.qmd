@@ -336,7 +336,7 @@ We never see both $D_i^1$ and $D_i^0$ for the same person, so we cannot tell eac
 
 ### The five assumptions
 
-1. **SUTVA.** Person $i$'s treatment status and outcome depend only on $i$'s own instrument and treatment, not on other people's.
+1. **Stable Unit Treatment Value Assumption (SUTVA).** Person $i$'s treatment status and outcome depend only on $i$'s own instrument and treatment, not on other people's.
 2. **Independence.** The instrument is as good as randomly assigned:
 $$\big\{Y_i(D_i^1, 1),\ Y_i(D_i^0, 0),\ D_i^1,\ D_i^0\big\} \perp Z_i.$$
 3. **Exclusion restriction.** The instrument affects the outcome only through the treatment:
