@@ -172,7 +172,7 @@ Since $U_i$ affects $D_i$, $\text{Cov}[U_i, D_i] \neq 0$. Unless $\gamma = 0$, t
 
 Then how do we identify $\delta$?
 
-## Lab 1 — Omitted variable bias by hand
+## Lab 1 — Omitted variable bias by simulation
 
 We simulate 10,000 people. $U_i$ is an unobserved trait (think of it as ability or motivation). The instrument is a fair coin. Service depends on the instrument **and** on $U_i$, and earnings depend on service **and** on $U_i$:
 
