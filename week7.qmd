@@ -728,7 +728,6 @@ Robust                 -        -   26.913  1.539e-159     [1.837, 2.126]
 
 **Question 3.** (a) Using the picture and the table, explain why the bias grows and the standard error falls as $h$ grows.
 (b) Which bandwidth has the smallest RMSE in the table? How close is the bandwidth that `rdrobust` chose from a single data set?
-(c) Which of the three true effects of Lab 1 (ATE, ATT, effect at the cutoff) does the RD estimate recover? Why can the RD design not recover the other two without more assumptions?
 
 ### Lab 5 — Data: close elections and the incumbency advantage
 
