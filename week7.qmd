@@ -222,9 +222,9 @@ A scatter plot of 20,000 points is hard to read. Instead, we cut the range of $X
 
 ```python
 def binned_means(x, y, bins):
-    groups = pd.cut(x, bins=bins) ## sort the first argument into a prespecified grid (chopped interval in a specific way)
-    means = y.groupby(groups, observed=True).mean() ## compute the means of the observed outcomes corresponding to each bin of x
-    mids = [b.mid for b in means.index] ## collect the midpoint of each bin
+    groups = pd.cut(x, bins=bins)
+    means = y.groupby(groups, observed=True).mean()
+    mids = [b.mid for b in means.index]
     return mids, means.values
 ```
 
@@ -232,22 +232,22 @@ Now the simulation and the picture.
 
 ```python
 # Data: we create `srd`, the sharp RD model of Lab 1 (true jump at the cutoff 2).
-n = 20_000 ## the number of observations
-x = rng.uniform(-1, 1, n) # generate the running variable from a uniform distribution from -1 to 1.
-d = (x >= 0).astype(int) # create the treatment dummy by setting the cutoff at 0 in the running variable
-y0 = 1 + 1.5 * x  + x**2 + rng.normal(0, 1, n) # potential outcome when units not treated
-effect = 2 + x - 2 * x**2 # the treatment effect does depend on the running variable
-y1 = y0 + effect # the potential outcome when units treated is shifted by the treatment effect
-y = np.where(d == 1, y1, y0) # creates observed outcome
-srd = pd.DataFrame({"x": x, "d": d, "y": y}) ## create a data frame using pandas
+n = 20_000
+x = rng.uniform(-1, 1, n)
+d = (x >= 0).astype(int)
+y0 = 1 + 1.5 * x + x**2 + rng.normal(0, 1, n)
+effect = 2 + x - 2 * x**2
+y1 = y0 + effect
+y = np.where(d == 1, y1, y0)
+srd = pd.DataFrame({"x": x, "d": d, "y": y})
 
-grid = np.linspace(-1, 1, 201) ## 201 points from -1 to 1, used only to draw the true curves (these are not the bins)
-mean_y0 = lambda z: 1 + 1.5 * z + z**2 ## create the conditional expectation of each potential outcome as a function of the running variable
-mean_y1 = lambda w: 3 + 2.5 * w  - w**2
-mids, means = binned_means(srd["x"], srd["y"], np.linspace(-1, 1, 41)) ## determine the mid points and bins using a grid with the size of bin .05
+grid = np.linspace(-1, 1, 201)
+mean_y0 = lambda z: 1 + 1.5 * z + z**2
+mean_y1 = lambda w: 3 + 2.5 * w - w**2
+mids, means = binned_means(srd["x"], srd["y"], np.linspace(-1, 1, 41))
 
 plt.plot(mids, means, "o", color="#2a78d6", label="average Y in each bin")
-plt.plot(grid, mean_y0(grid), "--", color="gray", label="E[Y(0) | X = x]") ## the conditional expectation curve of Y_i(0) over the running variable
+plt.plot(grid, mean_y0(grid), "--", color="gray", label="E[Y(0) | X = x]")
 plt.plot(grid, mean_y1(grid), ":", color="gray", label="E[Y(1) | X = x]")
 plt.axvline(0, color="black", linewidth=0.8)
 plt.xlabel("Running variable X")
@@ -431,7 +431,7 @@ for ax, h in zip(axes, [1.0, 0.2, 0.1]):
     left = pd.DataFrame({"x": np.linspace(-h, 0, 50), "d": 0})
     right = pd.DataFrame({"x": np.linspace(0, h, 50), "d": 1})
     ax.plot(mids_cub, means_cub, "o", color="#2a78d6", markersize=4, label="average Y in each bin")
-    ax.plot(grid, mean_y0_three(grid), "--", color="gray", label="E[Y(0) | X = x]") ## the conditional expectation curve of Y_i(0) over the running variable
+    ax.plot(grid, mean_y0_three(grid), "--", color="gray", label="E[Y(0) | X = x]")
     ax.plot(grid, mean_y1_three(grid), ":", color="gray", label="E[Y(1) | X = x]")
     ax.plot(left["x"], fit.predict(left), color="#eb6834", label="fitted line")
     ax.plot(right["x"], fit.predict(right), color="#eb6834")
@@ -471,7 +471,7 @@ y = 1 + 2 * x + 2 * d + rng.normal(0, 1, n)
 lin = pd.DataFrame({"x": x, "d": d, "y": y})
 
 h = 0.5
-mean_left = lin.loc[(lin["x"] >= -h) & (lin["x"] < 0), "y"].mean() ## in the data frame "lin," we find the indexes of observtions that fall into the left window of the cutoff. and using the indexes, we take the mean of y corresponding to the indexes.
+mean_left = lin.loc[(lin["x"] >= -h) & (lin["x"] < 0), "y"].mean()
 mean_right = lin.loc[(lin["x"] >= 0) & (lin["x"] < h), "y"].mean()
 
 grid_lin = np.linspace(-1, 1, 201)
@@ -546,7 +546,6 @@ def local_fit(data, h, kernel, degree):
     return fit.params["d"]
 for name in kernels:
     constant = local_fit(lin, 0.5, name, 0)
-    #line = local_fit(lin, 0.5, name, 1)
     print(f"{name:<13} local constant = {constant:.3f}   (true jump: 2)")
 ```
 
@@ -1519,6 +1518,7 @@ Robust                 -        -   -1.999   4.561e-02   [-0.295, -0.003]
 - Cattaneo, M. D., Idrobo, N., and Titiunik, R. (2024). *A Practical Introduction to Regression Discontinuity Designs: Extensions*. Cambridge University Press. <https://arxiv.org/abs/2301.08958>. Replication files: <https://github.com/rdpackages-replication/CIT_2024_CUP>
 - Cattaneo, M. D., Jansson, M., and Ma, X. (2020). Simple local polynomial density estimators. *Journal of the American Statistical Association*, 115(531), 1449–1455. <https://doi.org/10.1080/01621459.2019.1635480>
 - Cunningham, S. *Causal Inference: The Mixtape*, Chapter 6. <https://mixtape.scunning.com/06-regression_discontinuity>
+- Gelman, A., and Imbens, G. (2019). Why high-order polynomials should not be used in regression discontinuity designs. *Journal of Business & Economic Statistics*, 37(3), 447–456. <https://doi.org/10.1080/07350015.2017.1366909>
 - Hahn, J., Todd, P., and van der Klaauw, W. (2001). Identification and estimation of treatment effects with a regression-discontinuity design. *Econometrica*, 69(1), 201–209.
 - Hoekstra, M. (2009). The effect of attending the flagship state university on earnings: A discontinuity-based approach. *Review of Economics and Statistics*, 91(4), 717–724.
 - Imbens, G. W., and Lemieux, T. (2008). Regression discontinuity designs: A guide to practice. *Journal of Econometrics*, 142(2), 615–635.
