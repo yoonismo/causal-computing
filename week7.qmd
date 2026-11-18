@@ -739,7 +739,7 @@ We use the data of Lee, Moretti and Butler (2004), elections to the U.S. House, 
 - treatment $D_i$: `lagdemocrat`, 1 if the Democrat won at $t$,
 - outcomes $Y_i$: `demvoteshare`, the Democratic share of the vote at $t+1$, and `democrat`, 1 if the Democrat won at $t+1$.
 
-Every election appears twice in this data set: the two rows have the same state, district, year and vote shares, and differ only in `id` and `score` (a voting-record measure that we do not use). So we keep one row per state, district and year.
+Most elections appear twice in this data set (6,446 of the 7,142 elections): the two rows have the same state, district, year and vote shares, and differ only in `id` and `score` (a voting-record measure that we do not use). So we keep one row per state, district and year.
 
 ```python
 # Data: we load `elections`, the U.S. House elections in the package `causaldata`.
