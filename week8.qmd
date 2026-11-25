@@ -9,7 +9,8 @@ All of a sudden, we are looking at the term, machine learning. Why are we seeing
 
 - what double/debiased machine learning (DML) is, that is, what "double" and "debiased" mean, 
 - in which part of estimation for causal effects it is used, and 
-- how it is implemented. 
+- how it is implemented and
+- what happens if either of machine learning techniques or both are not used when necessary.
 
 ## Get the starter repository
 
