@@ -1,0 +1,834 @@
+---
+title: "Week 8: Double/Debiased Machine Learning (DML)"
+---
+
+
+## Goal
+
+All of a sudden, we are looking at the term, machine learning. Why are we seeing this? Where does it come from? Today, we are going to study 
+
+- what double/debiased machine learning (DML) is, that is, what "double" and "debiased" mean, 
+- in which part of estimation for causal effects it is used, and 
+- how it is implemented. 
+
+## Get the starter repository
+
+All the code on this page is in the notebook `week8.ipynb` in the [`week8-starter`](https://github.com/yoonismo/week8-starter) repository. Make your own copy the same way as in Week 1, Lab 1.
+
+1. Open the [`week8-starter`](https://github.com/yoonismo/week8-starter) repository on GitHub and click **Use this template** → **Create a new repository**. Create it in *your* account and name it `week8`.
+2. On *your* new repository, click the green **Code** button and copy the HTTPS address. For a student whose GitHub username is `jdoe`, it is `https://github.com/jdoe/week8.git`.
+3. In the Terminal, move into your course folder:
+
+    ```bash
+    cd ~/ECON481
+    ```
+
+    Windows:
+
+    ```powershell
+    cd ~\ECON481
+    ```
+
+4. Clone your copy (use **your own** address):
+
+    ```bash
+    git clone https://github.com/jdoe/week8.git
+    ```
+
+5. This week uses `scikit-learn` (Lasso, Ridge, random forest), `joblib` (running model fits on several cores) and `doubleml`. Activate the course environment and install the packages (the ones you already have are skipped):
+
+    ```bash
+    source ~/ECON481/.venv/bin/activate
+    uv pip install pandas causaldata statsmodels matplotlib scikit-learn joblib doubleml
+    ```
+
+    Windows:
+
+    ```powershell
+    ~\ECON481\.venv\Scripts\activate
+    uv pip install pandas causaldata statsmodels matplotlib scikit-learn joblib doubleml
+    ```
+
+6. In Visual Studio Code, choose **File → Open Folder…** and open the new `week8` folder (the folder, not just one file).
+7. Open `week8.ipynb`. Click **Select Kernel** → **Jupyter Kernel…** → **ECON 481 (Python 3.12)**.
+
+Run the cells in order. The NHEFS data come with the `causaldata` package. Some cells fit hundreds of models, and the simulation in Section 4.2 can take a few minutes.
+
+## From Week 4 to Week 8
+
+For the discussion this week, we bring the identification assumptions again: 
+
+- **consistency**: $Y_i = D_i Y_i(1) + (1-D_i)Y_i(0)$.
+- **unconfoundedness**: $\{Y_i(1), Y_i(0)\} \perp D_i \mid X_i$, the potential outcomes are independent of the treatment assignment after controlling for covariates $X_i$. 
+- **overlap**: $0 < P(D_i = 1 \mid X_i = x) < 1$, at each value of $X$, both the treatment and control groups have nonzero shares of units. 
+
+What we are going to discuss today is less an identification problem than an estimation problem. 
+
+### The model
+Suppose we have the following simple regression model:
+
+$$
+\begin{align*}
+    Y_i =& \tau D_i + X_i^{\top}\beta + \epsilon_i\\
+    D_i =& X_i^{\top}\gamma + \xi_i,
+\end{align*}
+$$ 
+where 
+
+- $\tau$: our target parameter, the average treatment effect (ATE),
+- $(\beta, \gamma)$: **nuisance** parameters, 
+- $\epsilon_i, \xi_i$: errors with $E[\epsilon_i \mid D_i, X_i] = 0$ and $E[\xi_i \mid X_i] = 0$. 
+
+For simplicity, we assume that $\tau$ is the average treatment effect under the homogeneous treatment effect assumption, $\tau = Y_i(1) - Y_i(0)$ for all $i$. Then what are **nuisance parameters**? They are parameters that are not of our main interest, but we must estimate to measure the target impact, $\tau$. 
+
+Suppose further that the model is correctly specified at $\theta_0 = (\tau_0, \beta_0, \gamma_0)$. This implies that at $\gamma_0$, $E[D_i - X_i^{\top}\gamma_0 \mid X_i] = 0$ and at $\beta_0, \tau_0$, $E[Y_i - \tau_0 D_i - X_i^{\top}\beta_0 \mid X_i, D_i] = 0$. If the dimension of $X_i$, $d_X$, is high, say, $d_X = 30$? Or even $d_X$ is greater than $n$? How do we estimate $(\beta_0, \gamma_0)$? We may think about standard machine learning techniques such as Lasso, Ridge, or Random Forest. A short summary of their strengths and weaknesses is in [Appendix A](#appendix-ml). <a id="back-to-ml"></a> One of the problems when we use machine learning methods is that the methods specialize in predicting the outcome variable $Y$ well, not the estimation of $\tau$. As a result, when we use such methods to estimate the parameters, they typically induce asymptotic bias that decreases at a convergence rate slower than the conventional $\sqrt{n}$ convergence rate. This is beyond our scope, so just note that they induce bias in finite samples. 
+
+- Lasso and Ridge make regression coefficients shrink toward zero, inducing regularization bias. This means that if we use a machine learning technique without concern, it will provide a wrong estimate of both $\tau$ and $(\beta, \gamma)$. Even further, in cases of high-dimensional covariates, Lasso will drop the covariates which are strongly correlated with the treatment $D$ and weakly correlated with the outcome $Y$. 
+- Random forest reveals both regularization bias and overfitting. The overfitting issue becomes severe when there is no cross-fitting. 
+
+In other words, estimators $(\tilde{\beta}, \tilde{\gamma})$ using the methods mentioned earlier may not be unbiased, so they will estimate $(\beta', \gamma')$ instead of $(\beta_0, \gamma_0)$ in finite samples (although they are consistent with the right choice of penalty as a function of sample size). This bias will eventually affect the estimate of $\tau_0$. Then how should we manage this issue to correctly estimate $\tau_0$? 
+
+So the question we are going to discuss is 
+
+**How do we estimate $\tau_0$, when the dimension of covariates is high so we need to use machine learning techniques?** This is what Chernozhukov et al. (2018) developed: double/debiased machine learning (DML). 
+
+First of all, we directly learn how DML works in an example. Then we will see what will happen to estimation of $\tau_0$ when we remove either of machine learning methods, estimation methods or cross-fitting. 
+
+## 1. Data: NHEFS
+
+The National Health and Nutrition Examination Survey Epidemiologic Follow-up Study (NHEFS) followed adult smokers from 1971-1975 to 1982. This subset is the running example in Hernán and Robins, *Causal Inference: What If*. The `causaldata` package has it as `nhefs_complete` (1,566 people with weight measured in both years).
+
+### 1.1 The research question
+
+Does quitting smoking make people gain weight? We answer this question with data on 1,566 smokers.
+
+### The question
+
+- **Treatment** $D$ ``qsmk``: did the person quit smoking between 1971 and 1982? ($D = 1$ yes, $D = 0$ no)
+- **Outcome** $Y$ ``wt82_71``: weight change from 1971 to 1982, in kilograms.
+- **Controls** $X$: things measured in 1971, before anyone quit. Age, sex, how much and how long they smoked, weight, health problems, and so on.
+
+People who quit are not a random group. We will see below that they were older and had smoked for more years. These differences can also change weight by themselves. So a simple comparison of quitters and non-quitters mixes two things: the effect of quitting and the effect of being a different kind of person. This is **confounding**. If we believe that $X$ contains all the important differences, we can remove the confounding by controlling for $X$.
+
+### The model
+We use the same simple model above:
+$$
+\begin{align*}
+    Y_i =& \tau D_i + X_i^{\top}\beta + \epsilon_i\\
+    D_i =& X_i^{\top}\gamma + \xi_i,
+\end{align*}
+$$
+
+- $\tau$ is the effect of quitting on weight change. This is the one number we want.
+- $X_i^{\top}\beta$ is how the controls affect weight change. However, it can be any function with nonlinear shapes.
+- $X_i^{\top}\gamma$ is a linear approximation of $D_i$ given $X$. We could use some functional form $\text{Pr}(D_i =1 \mid X_i)$ as the probability of quitting given $X_i$, or the **propensity score**. $V = D - X_i^{\top}\gamma$ is the part of $D$ that $X$ does not explain. 
+
+We must estimate $\beta$ and $\gamma$ to get $\tau$, but we do not care about them for their own sake. Functions like this are called **nuisance functions**. We collect them in $\eta = (\beta, \gamma)$. 
+
+```python
+# No data here: packages
+import warnings
+warnings.filterwarnings("ignore")
+
+import time
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import statsmodels.api as sm
+import joblib
+from joblib import Parallel, delayed
+from sklearn.base import clone
+from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
+from sklearn.linear_model import LassoCV, RidgeCV
+from sklearn.model_selection import KFold
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+import doubleml
+from causaldata import nhefs_complete
+
+N_JOBS = max(1, int(0.75 * joblib.cpu_count()))
+print("cores on this computer:", joblib.cpu_count(), "  cores we use (N_JOBS):", N_JOBS)
+```
+
+```
+cores on this computer: 10   cores we use (N_JOBS): 7
+```
+
+```python
+# Data: NHEFS (nhefs_complete), 1,566 smokers
+nhefs = nhefs_complete.load_pandas().data
+print(nhefs.shape)
+print(nhefs[["qsmk", "wt82_71"]].describe().round(2))
+```
+
+```
+(1566, 67)
+          qsmk  wt82_71
+count  1566.00  1566.00
+mean      0.26     2.64
+std       0.44     7.88
+min       0.00   -41.28
+25%       0.00    -1.48
+50%       0.00     2.60
+75%       1.00     6.69
+max       1.00    48.54
+```
+
+### 1.2 Which variables can be controls?
+
+Controls must be measured **before** the treatment. Quitting happened between 1971 and 1982, so we only use variables from 1971. We leave out:
+
+- variables measured in 1982 or later: `wt82`, `sbp`, `dbp`, `smkintensity82_71`, `death` and the date of death, `price82`, `tax82`, `hightax82`, and the 1971–1982 differences
+- the outcome itself, `wt82_71`
+- tobacco prices and taxes in 1971 (`price71`, `tax71`). They change how likely people are to quit but should not change weight directly. We keep them for an instrumental variables example later.
+- variables with missing values: `income`, `cholesterol`, `alcoholhowmuch`, `pregnancies`, `birthplace`
+
+That leaves 41 variables from 1971.
+
+| group | variables |
+|---|---|
+| numbers (6) | `age`, `school`, `ht`, `wt71`, `smokeintensity`, `smokeyrs` |
+| yes/no (22) | `sex`, `race`, and 20 health questions (`asthma`, `bronch`, `tb`, `hf`, `pepticulcer`, `colitis`, `hepatitis`, `chroniccough`, `hayfever`, `polio`, `tumor`, `nervousbreak`, `allergies`, `headache`, `otherpain`, `weakheart`, `nerves`, `lackpep`, `wtloss`, `infection`) |
+| categories (6) | `education`, `marital`, `active`, `exercise`, `alcoholfreq`, `alcoholtype` |
+| half-sample questions (6 + 1) | `hbp`, `hbpmed`, `diabetes`, `boweltrouble`, `pica`, `birthcontrol`, and one indicator `module_missing` |
+
+The following code is for data processing to ensure we have the mathematical properties necessary to run DML and OLS. For a more detailed explanation, please see [Appendix B](#appendix-trap). <a id="back-to-controls"></a>
+
+```python
+# Data: NHEFS, building the control matrix X
+num = ["age", "school", "ht", "wt71", "smokeintensity", "smokeyrs"]
+yes_no = ["sex", "race", "asthma", "bronch", "tb", "hf", "pepticulcer", "colitis", "hepatitis",
+          "chroniccough", "hayfever", "polio", "tumor", "nervousbreak", "allergies", "headache",
+          "otherpain", "weakheart", "nerves", "lackpep", "wtloss", "infection"]
+cats = ["education", "marital", "active", "exercise", "alcoholfreq", "alcoholtype"]
+half = ["hbp", "hbpmed", "diabetes", "boweltrouble", "pica", "birthcontrol"]
+
+X_naive = pd.get_dummies(nhefs[num + yes_no + cats + half + ["alcoholpy"]].astype(float),
+                         columns=cats + half + ["alcoholpy"], drop_first=True).astype(float)
+
+X_df = nhefs[num + yes_no + cats].astype(float).copy()
+for v in half:
+    X_df[v + "_yes"] = (nhefs[v] == 1).astype(float)
+X_df["module_missing"] = (nhefs["hbp"] == 2).astype(float)
+X_df = pd.get_dummies(X_df, columns=cats, drop_first=True).astype(float)
+
+for name, M in [("naive coding", X_naive), ("fixed coding", X_df)]:
+    A = np.column_stack([np.ones(len(M)), M.to_numpy()])
+    print(f"{name}: {A.shape[1]} columns, rank {np.linalg.matrix_rank(A)}")
+
+y = nhefs["wt82_71"].to_numpy()
+d = nhefs["qsmk"].to_numpy().astype(float)
+X = X_df.to_numpy()
+print("n =", len(y), " controls (columns) =", X.shape[1], " share who quit =", d.mean().round(3))
+```
+
+```
+naive coding: 64 columns, rank 58
+fixed coding: 57 columns, rank 57
+n = 1566  controls (columns) = 56  share who quit = 0.257
+```
+
+After data processing, we have a nice data frame. 
+
+```python
+# Data: NHEFS, outcome, treatment, controls as arrays
+y = nhefs["wt82_71"].to_numpy()
+d = nhefs["qsmk"].to_numpy().astype(float)
+X = X_df.to_numpy()
+print("n =", len(y), " controls (columns) =", X.shape[1], " share who quit =", d.mean().round(3))
+```
+
+```
+n = 1566  controls (columns) = 56  share who quit = 0.257
+```
+
+We simply compare the baseline information between quitters and non-quitters in 1971.
+
+```python
+# Data: NHEFS, 1971 means by quitting status
+show = ["age", "sex", "race", "school", "wt71", "smokeintensity", "smokeyrs"]
+means = nhefs[show].astype(float).groupby(nhefs["qsmk"].astype(int)).mean()
+print(means.round(2).T.rename(columns={0: "did not quit", 1: "quit"}))
+```
+
+```
+qsmk            did not quit   quit
+age                    42.79  46.17
+sex                     0.53   0.45
+race                    0.15   0.09
+school                 11.13  11.29
+wt71                   70.30  72.35
+smokeintensity         21.19  18.60
+smokeyrs               24.09  26.03
+```
+
+### 1.3 A first look at DML
+
+```python
+# Data: NHEFS (y, d, X)
+lasso = make_pipeline(StandardScaler(), LassoCV(cv=5, random_state=0))
+
+y_hat = np.zeros(len(y))
+d_hat = np.zeros(len(d))
+for train, test in KFold(n_splits=5, shuffle=True, random_state=0).split(X):
+    y_hat[test] = clone(lasso).fit(X[train], y[train]).predict(X[test])
+    d_hat[test] = clone(lasso).fit(X[train], d[train]).predict(X[test])
+
+y_res = y - y_hat
+d_res = d - d_hat
+fit = sm.OLS(y_res, d_res).fit(cov_type="HC0")
+print(fit.summary().tables[1])
+```
+
+```
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+x1             3.1900      0.473      6.738      0.000       2.262       4.118
+==============================================================================
+```
+
+After running the DML using NHEFS, we have some result. But we don't know how much better the DML estimate of the treatment effect is compared to the conventional methods, and how it works. 
+
+I am going to talk about 
+
+1. how the DML works, 
+2. how much better the DML is compared to other methods. 
+
+## 2. DML
+
+### 2.1 DML by hand
+
+DML is essentially a two-step iterative estimation method using two machine learning techniques, one for a selected estimation method such as Lasso or Ridge, and the other for preventing overfitting, **cross-fitting**. **Cross-fitting** is a machine learning tool that partitions a given data set in order not to use the entire data to fit a model to it, to prevent overfitting. 
+
+For instance, for $[n] = \{1,2,3,...,n\}$, we can have a partition of 5 folds, such that $[n] = \cup_{j=1}^5 I_j$, where $| I_j| = n/5$ for each $j$. Then the cross-fitting process is as follows:
+
+1. first, we estimate $\gamma$ using a machine learning method using the folds except the 1st fold, meaning if we have 5 folds, then put the 1st fold aside, and use only the 2nd to the 5th folds to estimate $\gamma$. Here we use Lasso. 
+
+$$
+\begin{align*}
+    D_i =& X_i^{\top}\gamma + \xi_i \rightarrow \tilde D_i = X_i^{\top}\tilde{\gamma}_{0,1}\\
+    Y_i =& X_i^{\top}\beta + \phi_i \rightarrow \tilde{Y}_i = X_i^{\top}\tilde{\beta}_{0,1}
+\end{align*}
+$$
+where $i \in \cup_{j=2}^5 I_j$. Here, please keep in mind that $\tilde{\beta}$ is the estimate of a model $Y_i = X_i^{\top}\beta + \phi_i$, $\phi_i = \tau D_i + \epsilon_i$. We denote $\tilde{\eta}_{0,1} = (\tilde{\beta}_{0,1}, \tilde{\gamma}_{0,1})$. Then we can generalize this notation as for each $j \in [5]$, $\tilde{\eta}_{0,j} = (\tilde{\beta}_{0,j}, \tilde{\gamma}_{0,j})$
+
+2. second, using the 1st fold, we compute the following for a given $\tau$: 
+$$
+    \frac{1}{n}\sum_{i \in I_1} \psi(\tau, \tilde{\eta}_{0,1})
+$$
+
+3. third, repeat step 1 and 2 using all the 5 folds. After collecting the 5 functions $\psi$ in step 2, we estimate $\tau$ satisfying the following objective function: 
+$$
+    \frac{1}{5}\sum_{j=1}^5 \frac{1}{n}\sum_{i \in I_j} \psi(\tau, \tilde{\eta}_{0,j}) = 0
+$$
+
+This is how DML works. 
+
+```python
+# No data here: DML by hand (cross-fitting, then residual on residual)
+def fit_predict(model, X_train, t_train, X_test):
+    return clone(model).fit(X_train, t_train).predict(X_test)
+
+def dml(X, d, y, model_y, model_d, method="crossfit", n_folds=5, seed=0, n_jobs=N_JOBS):
+    n = len(y)
+    if method == "crossfit":
+        folds = list(KFold(n_folds, shuffle=True, random_state=seed).split(X))
+        jobs = [delayed(fit_predict)(model, X[train], t[train], X[test])
+                for train, test in folds for model, t in [(model_y, y), (model_d, d)]]
+        preds = Parallel(n_jobs=n_jobs)(jobs)
+        y_hat = np.zeros(n)
+        d_hat = np.zeros(n)
+        for k, (train, test) in enumerate(folds):
+            y_hat[test] = preds[2 * k]
+            d_hat[test] = preds[2 * k + 1]
+        use = np.arange(n)
+    elif method == "split":
+        perm = np.random.default_rng(seed).permutation(n)
+        train, use = perm[: n // 2], perm[n // 2:]
+        y_hat = np.zeros(n)
+        d_hat = np.zeros(n)
+        y_hat[use] = fit_predict(model_y, X[train], y[train], X[use])
+        d_hat[use] = fit_predict(model_d, X[train], d[train], X[use])
+    else:
+        y_hat = fit_predict(model_y, X, y, X)
+        d_hat = fit_predict(model_d, X, d, X)
+        use = np.arange(n)
+    y_res = (y - y_hat)[use]
+    d_res = (d - d_hat)[use]
+    tau = (d_res @ y_res) / (d_res @ d_res)
+    eps = y_res - tau * d_res
+    se = np.sqrt(np.mean(d_res**2 * eps**2)) / np.mean(d_res**2) / np.sqrt(len(use))
+    rmse_y = np.sqrt(np.mean(y_res**2))
+    rmse_d = np.sqrt(np.mean(d_res**2))
+    return tau, se, rmse_y, rmse_d
+```
+
+### 2.2 DML with Lasso, Ridge, and random forest
+
+We use the same three famous machine learning methods, or learners: Lasso, Ridge, and random forest. The only change is how we use them. We also print the out-of-sample prediction error (RMSE) of each learner for $Y$ and for $D$.
+
+**What the code computes.** The same `dml()` with three choices of learner, used for both $\tilde{\beta}$ and $\tilde{\gamma}$. Here $D$ is **not** an input. Each learner predicts from $X$ only.
+
+- Lasso: inside each training set, standardize the 56 columns of $X_i$, so we let $Z_{ip} = (X_{ip} - \bar{X}_p)/sd(X_{ip})$, where $X_{ip}$ is the $p$th element of $X_i$. Then we fit $E[Y_i \mid Z_i] = b_0 + Z_i^{\top}\beta$ with the Lasso or $\ell_1$ regularization term, $ \|\beta\|_1 = \sum_{m =1}^{56} \mid \beta_m \mid$ with regularization parameter $\lambda$. The intercept $b_0$ is not penalized. Thus we estimate $\beta$ as $\tilde \beta$ by solving 
+$$
+\min_{b_0, \beta'} \frac{1}{2n} \sum_{i=1}^n (Y_i - b_0 - Z_i^{\top}\beta')^2 + \lambda \| \beta' \|_1
+$$ We choose $\lambda$ by 5-fold cross-validation. The same approach applies to $D$ as the outcome to get $\tilde \gamma$. 
+    - `make_pipeline(StandardScaler(), LassoCV(...))` packs the standardizing and the fit together, so `clone(...).fit(...)` redoes both on every training set and the test fold never affects the means and standard deviations used for standardizing.
+
+- Ridge: similar to Lasso approach, except we use squared $\ell_2$ regularization $\|\beta\|_2^2 = \sum_{m =1}^{56} \mid \beta_m \mid^2$ with regularization parameter $\alpha$. Hence our objective function is 
+$$
+\min_{b_0, \beta'} \sum_{i=1}^n (Y_i - b_0 - Z_i^{\top}\beta')^2 + \alpha \| \beta' \|_2^2
+$$
+
+- Random forest: $\hat\ell(X) = \frac1B \sum_b T_b(X)$, a forest of $Y$ on $X$. For $D$ the same regression forest predicts the share of quitters in each leaf, which estimates $m(X) = P(D = 1 \mid X)$. `n_jobs=1` inside the forest because the 10 fits already run in parallel (the `Parallel` call inside `dml()`).
+
+The loop calls `dml(X, d, y, model, model, method="crossfit")` for each learner, adds a row with $\hat{\tau}_{\text{ATE}}^{\text{DML}}$ and its standard error from the formula below, and keeps the two RMSEs to show how well each learner predicts $Y$ and $D$ out of sample.
+
+For students who want to know the standard error for DML estimator, below is the formula. Let $\hat\xi_i = D_i - \tilde D_i$ and $\hat\phi_i = Y_i - \tilde Y_i$ be the out-of-fold residuals, where $\tilde D_i$ and $\tilde Y_i$ are the out-of-fold predictions from Section 2.1. Then
+$$
+\hat{\tau}_{\text{ATE}}^{\text{DML}} = \frac{\sum_i \hat\xi_i\,\hat\phi_i}{\sum_i \hat\xi_i^2}, \qquad \hat\varepsilon_i = \hat\phi_i - \hat{\tau}_{\text{ATE}}^{\text{DML}}\,\hat\xi_i,
+$$
+$$
+\hat\sigma^2 = \frac{\frac1n\sum_i \hat\xi_i^2\,\hat\varepsilon_i^2}{\left(\frac1n\sum_i \hat\xi_i^2\right)^2}, \qquad \mathrm{SE}(\hat{\tau}_{\text{ATE}}^{\text{DML}}) = \frac{\hat\sigma}{\sqrt n}.
+$$
+In `dml()` these are `d_res` ($\hat\xi_i$), `y_res` ($\hat\phi_i$), `tau`, `eps` ($\hat\varepsilon_i$), and `se`. This standard error allows the error variance to differ across people (heteroskedasticity-robust).
+
+```python
+# Data: NHEFS (y, d, X), three learners and DML with cross-fitting
+learners = {
+    "Lasso": make_pipeline(StandardScaler(), LassoCV(cv=5, random_state=0)),
+    "Ridge": make_pipeline(StandardScaler(), RidgeCV(alphas=np.logspace(-2, 4, 50))),
+    "Random forest": RandomForestRegressor(n_estimators=500, min_samples_leaf=5, max_features=0.5,
+                                           random_state=0, n_jobs=1),
+}
+def row(name, est, se=np.nan, se_type=""):
+    return pd.DataFrame({"estimate": [est], "se": [se],
+                         "lower": [est - 1.96 * se], "upper": [est + 1.96 * se],
+                         "se_type": [se_type]},
+                        index=[name])
+table = pd.DataFrame()
+rmse = {}
+for name, model in learners.items():
+    tau, se, rmse_y, rmse_d = dml(X, d, y, model, model, method="crossfit")
+    table = pd.concat([table, row(f"DML (cross-fitting), {name}", tau, se, "DML formula")])
+    rmse[name] = (rmse_y, rmse_d)
+print(pd.DataFrame(rmse, index=["RMSE for Y", "RMSE for D"]).round(3))
+table.round(3)
+```
+
+```
+            Lasso  Ridge  Random forest
+RMSE for Y  7.612  7.671          7.639
+RMSE for D  0.432  0.433          0.438
+                                    estimate     se  lower  upper      se_type
+DML (cross-fitting), Lasso             3.190  0.473  2.262  4.118  DML formula
+DML (cross-fitting), Ridge             3.167  0.476  2.233  4.101  DML formula
+DML (cross-fitting), Random forest     3.533  0.467  2.617  4.449  DML formula
+```
+
+The same Lasso, Ridge, and forest give about 3.2 to 3.5 kg. Then how about removing the cross-fitting process? How much overfitting will stand out? 
+
+### 2.3 Cross-fitting
+
+Cross-fitting is the second half of DML. Residualizing fixes regularization bias. Cross-fitting fixes a different problem, **overfitting**: a flexible model that is evaluated on the same people it was trained on looks better than it really is.
+
+#### What the folds look like
+
+With $K = 5$ folds, each person sits in exactly one fold. In round $k$ the models are trained on the other four folds and predict fold $k$. After five rounds everyone has one out-of-sample prediction.
+
+```python
+# Data: NHEFS (only the number of people is used)
+folds = list(KFold(5, shuffle=True, random_state=0).split(X))
+plan = pd.DataFrame({f"round {k + 1}": ["predict" if j == k else "train" for j in range(5)]
+                     for k in range(5)},
+                    index=[f"fold {j + 1} ({len(folds[j][1])} people)" for j in range(5)])
+plan
+```
+
+```
+                     round 1  round 2  round 3  round 4  round 5
+fold 1 (314 people)  predict    train    train    train    train
+fold 2 (313 people)    train  predict    train    train    train
+fold 3 (313 people)    train    train  predict    train    train
+fold 4 (313 people)    train    train    train  predict    train
+fold 5 (313 people)    train    train    train    train  predict
+```
+
+#### Three learners, three ways of fitting
+
+We take the three learners from above and use the sample in three ways:
+
+1. **no splitting**: train and compute residuals on all 1,566 people
+2. **one split**: train on a random half, compute residuals and $\hat{\tau}_{\text{ATE}}^{\text{DML}}$ on the other half
+3. **cross-fitting** with 5 folds (these are the "DML (cross-fitting)" rows)
+
+**What the code computes.** The same `dml()` for each of the three learners, with `method` set to `"none"`, `"split"`, and `"crossfit"`. The formulas are those of Sections 2.1 and 2.2. Only the people used and the people each model has seen change, as listed above. The table below the cell shows $\hat{\tau}_{\text{ATE}}^{\text{DML}}$, its standard error, and the RMSE of $\tilde Y$ and $\tilde D$ for each learner and each way. The rows for `"none"` and `"split"` are added to the results table. The cross-fitting rows are already there from Section 2.2.
+
+```python
+# Data: NHEFS (y, d, X)
+check = {}
+for name, model in learners.items():
+    for label, method in [("no splitting", "none"), ("one split", "split"), ("cross-fitting", "crossfit")]:
+        tau, se, rmse_y, rmse_d = dml(X, d, y, model, model, method=method)
+        check[(name, label)] = {"tau": tau, "se": se, "RMSE for Y": rmse_y, "RMSE for D": rmse_d}
+        if method == "none":
+            table = pd.concat([table, row(f"DML (no splitting), {name}", tau, se,
+                                          "DML formula, residuals not honest")])
+        if method == "split":
+            table = pd.concat([table, row(f"DML (one split), {name}", tau, se, "DML formula")])
+pd.DataFrame(check).T.round(3)
+```
+
+```
+                               tau     se  RMSE for Y  RMSE for D
+Lasso         no splitting   3.244  0.476       7.531       0.427
+              one split      3.320  0.708       7.688       0.430
+              cross-fitting  3.190  0.473       7.612       0.432
+Ridge         no splitting   3.202  0.472       7.453       0.425
+              one split      3.121  0.697       7.732       0.433
+              cross-fitting  3.167  0.476       7.671       0.433
+Random forest no splitting   3.627  0.476       5.566       0.318
+              one split      3.507  0.672       7.755       0.441
+              cross-fitting  3.533  0.467       7.639       0.438
+```
+
+So far we check what happens why cross-fitting approach is needed in DML, especially when we use random forest. Let's see what happens if we merely use machine learning methods as a naïve plug-in estimator without concerning regularization bias. This will show why we need "partialling-out."
+
+## 3. Naïve plug-in estimates: machine learning without partialling-out
+
+A **naïve plug-in estimate** fits one machine learning model of $Y$ on $(D, X)$ and reads $\tau$ off that model. There is no second model for $D$ and no residual-on-residual step. We simply plug the fitted model into a formula for $\tau$:
+
+- Lasso and Ridge: the coefficient on $D$.
+- Random forest: there is no coefficient, so we predict every person twice, once with $D = 1$ and once with $D = 0$, and average the difference.
+
+We do this with the same three learners as in Section 2 and compare the results with the DML estimates.
+
+### 3.1 Naïve Lasso
+
+**What the code computes.** Put $D$ and the 56 controls into one vector $W_i = (D_i, X_i^{\top})^{\top}$ (57 columns) and standardize each column, $Z_{ip} = (W_{ip} - \bar W_p)/sd(W_{ip})$. Lasso solves
+$$
+\min_{b_0,\, \beta} \frac{1}{2n}\sum_{i=1}^n \big(Y_i - b_0 - Z_i^{\top} \beta\big)^2 + \lambda \|\beta\|_1 ,
+$$
+with $\lambda$ chosen by 5-fold cross-validation. The intercept $b_0$ is not penalized. We read off $\hat\beta_D$, the coefficient on $D$.
+
+**Why divide by $sd(D)$?** Lasso needs all columns on the same scale, so $D$ is standardized together with the controls. The coefficient we read off, $\hat\beta_D$, therefore belongs to the standardized $D$. It is the change in $Y$ when $D$ goes up by one standard deviation of $D$. Quitting moves $D$ from 0 to 1, which is $1/sd(D)$ standard deviations, so the effect of quitting in kilograms is
+$$
+\hat{\tau}_{\text{ATE}}^{\text{Lasso}} = \hat\beta_D / sd(D).
+$$
+This is still reading the coefficient off the fitted model. Dividing only puts it back on the original scale of $D$.
+
+Line by line:
+
+- `DX = np.column_stack([d, X])` makes the 57 columns, $D$ first.
+- `StandardScaler().fit(DX)` stores the means and standard deviations, and `scaler.transform(DX)` returns $Z$.
+- `lasso.coef_[0]` is $\hat\beta_D$ and `scaler.scale_[0]` is $sd(D)$.
+- `np.sum(lasso.coef_[1:] == 0)` counts how many of the 56 controls the penalty set exactly to zero, that is, how many controls Lasso dropped.
+
+```python
+# Data: NHEFS (y, d, X), naïve plug-in Lasso of Y on (D, X)
+DX = np.column_stack([d, X])
+scaler = StandardScaler().fit(DX)
+lasso = LassoCV(cv=5, random_state=0).fit(scaler.transform(DX), y)
+tau_lasso = lasso.coef_[0] / scaler.scale_[0]
+print("naïve Lasso estimate of tau:", round(tau_lasso, 3))
+print("controls dropped by Lasso:", int(np.sum(lasso.coef_[1:] == 0)), "of", X.shape[1])
+```
+
+```
+naïve Lasso estimate of tau: 2.398
+controls dropped by Lasso: 45 of 56
+```
+
+### 3.2 Naïve Ridge
+
+**What the code computes.** With the same standardized $Z$, Ridge solves
+$$
+\min_{b_0,\, \beta} \sum_{i=1}^n \big(Y_i - b_0 - Z_i^{\top} \beta\big)^2 + \alpha \|\beta\|_2^2 ,
+$$
+with $\alpha$ chosen from 50 values between $10^{-2}$ and $10^{4}$ by leave-one-out prediction error. Ridge shrinks every coefficient toward zero, including the one on $D$, but sets none of them exactly to zero. As for Lasso, $\hat{\tau}_{\text{ATE}}^{\text{Ridge}} = \hat\beta_D / sd(D)$. `scaler` is the one from Section 3.1.
+
+```python
+# Data: NHEFS (y, d, X), naïve plug-in Ridge of Y on (D, X)
+ridge = RidgeCV(alphas=np.logspace(-2, 4, 50)).fit(scaler.transform(DX), y)
+tau_ridge = ridge.coef_[0] / scaler.scale_[0]
+print("naïve Ridge estimate of tau:", round(tau_ridge, 3))
+```
+
+```
+naïve Ridge estimate of tau: 2.606
+```
+
+### 3.3 Naïve random forest (S-learner)
+
+A random forest has no coefficient on $D$. Each tree $T_b$ cuts the space of $(D, X)$ into boxes (leaves) and predicts the average $Y$ of the training people in the box that a point falls into. The forest averages the $B$ trees,
+$$
+\hat f(d, x) = \frac1B \sum_{b=1}^B T_b(d, x),
+$$
+and the naïve plug-in estimate predicts every person twice and averages the difference:
+$$
+\hat{\tau}_{\text{ATE}}^{\text{RF}} = \frac1n \sum_{i=1}^n \big[\hat f(1, X_i) - \hat f(0, X_i)\big].
+$$
+This is called an **S-learner** ("S" for a single model).
+
+Line by line:
+
+- `n_estimators=500` is $B = 500$ trees. Each tree is grown on a bootstrap sample of the 1,566 people.
+- `min_samples_leaf=5`: a cut is allowed only if both sides keep at least 5 of the people drawn for that tree.
+- `max_features=0.5`: at each cut only a random half of the 57 columns (28 columns) are candidates, so $D$ is a candidate only about half of the time.
+- `X_quit` and `X_stay` are the data with the $D$ column replaced by all ones and by all zeros. `forest.predict(X_quit) - forest.predict(X_stay)` is $\hat f(1, X_i) - \hat f(0, X_i)$ for every person.
+- The last lines look inside the forest. `forest.estimators_` holds the 500 trees. For each person and each tree we check whether $T_b(1, X_i)$ and $T_b(0, X_i)$ differ. They are equal whenever the path of person $i$ in tree $b$ never asks about $D$.
+
+```python
+# Data: NHEFS (y, d, X), naïve plug-in random forest of Y on (D, X)
+forest = RandomForestRegressor(n_estimators=500, min_samples_leaf=5, max_features=0.5,
+                               random_state=0, n_jobs=-1).fit(DX, y)
+X_quit = np.column_stack([np.ones_like(d), X])
+X_stay = np.column_stack([np.zeros_like(d), X])
+tau_forest = np.mean(forest.predict(X_quit) - forest.predict(X_stay))
+print("naïve random forest estimate of tau:", round(tau_forest, 3))
+
+T1 = np.array([tree.predict(X_quit) for tree in forest.estimators_])
+T0 = np.array([tree.predict(X_stay) for tree in forest.estimators_])
+print("share of (tree, person) pairs where the tree's answer does not depend on D:",
+      round(np.mean(T1 == T0), 3))
+```
+
+```
+naïve random forest estimate of tau: 2.973
+share of (tree, person) pairs where the tree's answer does not depend on D: 0.208
+```
+
+### 3.4 Naïve plug-in versus DML
+
+The table puts the naïve plug-in estimates next to the DML (cross-fitting) estimates from Section 2.2. Both use the same three learners.
+
+```python
+# No data here: naïve plug-in estimates next to the DML estimates from Section 2.2
+learner_names = ["Lasso", "Ridge", "Random forest"]
+compare = pd.DataFrame({
+    "naïve plug-in": [tau_lasso, tau_ridge, tau_forest],
+    "DML (no splitting)": [table.loc[f"DML (no splitting), {k}", "estimate"] for k in learner_names],
+    "DML (cross-fitting)": [table.loc[f"DML (cross-fitting), {k}", "estimate"] for k in learner_names],
+}, index=learner_names)
+compare.round(3)
+```
+
+```
+               naïve plug-in  DML (no splitting)  DML (cross-fitting)
+Lasso                  2.398               3.244                3.190
+Ridge                  2.606               3.202                3.167
+Random forest          2.973               3.627                3.533
+```
+
+### What went wrong?
+
+The DML estimates are about 3.2 to 3.5 kg. The naïve plug-in estimates from the same learners are lower.
+
+- **Lasso** dropped many of the controls. A dropped control is no longer controlled for, so its confounding goes back into the coefficient on $D$. On top of that, the penalty also shrinks the coefficient on $D$ itself.
+- **Ridge** keeps every column but shrinks all coefficients toward zero, including the one on $D$.
+- **Random forest** splits on $D$ only when that helps prediction. For about one in five (tree, person) pairs, the person's path never asks about $D$, so that tree answers "no effect" for that person. Averaging those zeros pulls the estimate toward zero.
+
+In all three cases the penalty or the splitting rule was chosen to predict $Y$ well, not to estimate $\tau$. This is **regularization bias**. DML removes most of it by predicting $Y$ **and** $D$ from $X$ and regressing residual on residual (partialling-out), so a mistake in the prediction of $Y$ alone no longer goes straight into $\hat{\tau}_{\text{ATE}}^{\text{DML}}$.
+
+## 4. Why not just OLS?
+
+### 4.1 OLS with all controls in NHEFS
+
+**What the code computes.** Stack the regressors of person $i$ into $W_i = (1, D_i, X_i^{\top})^{\top}$, a vector of length $k = 1 + 1 + 56 = 58$. OLS solves
+$$
+\hat b = \arg\min_b \sum_{i=1}^n \big(Y_i - W_i^{\top} b\big)^2 = (W^{\top}W)^{-1}W^{\top}Y,
+$$
+and $\hat{\tau}_{\text{ATE}}^{\text{OLS}}$ is the second element of $\hat b$ (the first is the intercept). The HC1 standard error comes from
+$$
+\widehat{\mathrm{Var}}(\hat b) = \frac{n}{n - k}\,(W^{\top}W)^{-1}\Big(\sum_{i=1}^n \hat e_i^2\, W_i W_i^{\top}\Big)(W^{\top}W)^{-1}, \qquad \hat e_i = Y_i - W_i^{\top}\hat b .
+$$
+
+```python
+# Data: NHEFS (y, d, X), OLS of Y on D and all 56 controls
+fit_ols = sm.OLS(y, sm.add_constant(np.column_stack([d, X]))).fit(cov_type="HC1")
+table = pd.concat([table, row("OLS, all controls", fit_ols.params[1], fit_ols.bse[1], "HC1 formula")])
+table.loc[["OLS, all controls", "DML (cross-fitting), Lasso", "DML (cross-fitting), Ridge",
+           "DML (cross-fitting), Random forest"]].round(3)
+```
+
+```
+                                    estimate     se  lower  upper      se_type
+OLS, all controls                      3.407  0.475  2.476  4.338  HC1 formula
+DML (cross-fitting), Lasso             3.190  0.473  2.262  4.118  DML formula
+DML (cross-fitting), Ridge             3.167  0.476  2.233  4.101  DML formula
+DML (cross-fitting), Random forest     3.533  0.467  2.617  4.449  DML formula
+```
+
+OLS with all controls gives about 3.4 kg, inside the range of the DML estimates (3.2 to 3.5 kg), with about the same standard error. **So why do we need DML at all?**
+
+In NHEFS, OLS works because two things are true.
+
+1. **$n$ is much larger than the number of controls.** 1,566 people and 56 control columns. $W^{\top}W$ is easy to invert, and OLS is not noisy.
+2. **We assumed the controls enter linearly**, $Y_i = \tau D_i + X_i^{\top}\beta + \epsilon_i$. If that is true, OLS is exactly the right estimator.
+
+DML earns its keep when one of these fails. Section 4.2 uses simulated data, where we know the true $\tau$, to show what happens when the first one fails.
+
+### 4.2 When there are almost as many controls as people, or more
+
+The model is still linear, $Y_i = \tau D_i + X_i^{\top}\beta + \epsilon_i$ and $D_i = X_i^{\top}\gamma + \xi_i$, but now $X_i$ has $p$ columns and $p$ is close to $n$ or larger.
+
+**Data.** $n = 200$ people, $p \in \{50, 150, 190, 300\}$ controls drawn independently from $N(0, 1)$, true $\tau = 0.5$. Only the first five controls matter: $\gamma = (1, 1, 0.5, 0.5, 0.5, 0, \dots, 0)$ and $\beta = (1, 0.5, 1, 0.5, 0.5, 0, \dots, 0)$. A model where only a few coefficients are nonzero is called **sparse**. Lasso is designed for this case.
+
+**Why OLS struggles.** OLS needs $(W^{\top}W)^{-1}$.
+
+- If $p + 2 > n$, $W$ has more columns than rows. Then $W^{\top}W$ is **singular** (some combination of columns is exactly zero), it has no inverse, and OLS cannot be computed.
+- If $p$ is a bit below $n$, $W^{\top}W$ can be inverted but is **ill-conditioned**. Its smallest eigenvalue is tiny, so the inverse is huge, and OLS is unbiased but extremely noisy.
+
+We measure this with the **condition number** of $W^{\top}W$, the ratio of its largest eigenvalue to its smallest. A condition number near 1 is ideal, and a very large one means the inverse amplifies noise.
+
+```python
+# No data here: simulated W = (1, D, X) with n = 200 and different p, condition number of W'W
+rng = np.random.default_rng(0)
+for p in [50, 150, 190, 300]:
+    Xs = rng.normal(size=(200, p))
+    Ds = Xs[:, :5] @ np.array([1, 1, 0.5, 0.5, 0.5]) + rng.normal(size=200)
+    Ws = np.column_stack([np.ones(200), Ds, Xs])
+    eig = np.linalg.eigvalsh(Ws.T @ Ws)
+    print(f"p = {p:3d}: columns = {p + 2:3d}, smallest eigenvalue = {eig[0]:10.4f}, "
+          f"condition number = {eig[-1] / max(eig[0], 1e-12):12.1f}")
+```
+
+```
+p =  50: columns =  52, smallest eigenvalue =    28.8911, condition number =         31.7
+p = 150: columns = 152, smallest eigenvalue =     3.9102, condition number =        274.1
+p = 190: columns = 192, smallest eigenvalue =     0.1068, condition number =      10149.2
+p = 300: columns = 302, smallest eigenvalue =    -0.0000, condition number = 1272451612185088.5
+```
+
+```python
+# No data here: simulation, OLS vs naïve Lasso vs DML with Lasso when p is close to or larger than n
+def one_rep_highdim(seed, p, n=200, tau=0.5):
+    import warnings
+    warnings.filterwarnings("ignore")
+    rng = np.random.default_rng(seed)
+    Xs = rng.normal(size=(n, p))
+    gamma = np.zeros(p)
+    gamma[:5] = [1, 1, 0.5, 0.5, 0.5]
+    beta = np.zeros(p)
+    beta[:5] = [1, 0.5, 1, 0.5, 0.5]
+    Ds = Xs @ gamma + rng.normal(size=n)
+    Ys = tau * Ds + Xs @ beta + rng.normal(size=n)
+    if p + 2 <= n:
+        ols = sm.OLS(Ys, sm.add_constant(np.column_stack([Ds, Xs]))).fit().params[1]
+    else:
+        ols = np.nan
+    DXs = np.column_stack([Ds, Xs])
+    sc = StandardScaler().fit(DXs)
+    naive = LassoCV(cv=5, random_state=0).fit(sc.transform(DXs), Ys).coef_[0] / sc.scale_[0]
+    lasso_learner = make_pipeline(StandardScaler(), LassoCV(cv=5, random_state=0))
+    tau_dml = dml(Xs, Ds, Ys, lasso_learner, lasso_learner, seed=seed, n_jobs=1)[0]
+    return ols, naive, tau_dml
+
+rows_hd = []
+for p in [50, 150, 190, 300]:
+    est = np.array(Parallel(n_jobs=N_JOBS)(delayed(one_rep_highdim)(s, p) for s in range(50)))
+    for j, name in enumerate(["OLS, all controls", "naïve plug-in Lasso", "DML with Lasso"]):
+        e = est[:, j]
+        rows_hd.append({"p": p, "method": name,
+                        "mean": np.nan if np.isnan(e).all() else round(e.mean(), 3),
+                        "SD": np.nan if np.isnan(e).all() else round(e.std(), 3),
+                        "RMSE": np.nan if np.isnan(e).all() else round(np.sqrt(np.mean((e - 0.5) ** 2)), 3)})
+pd.DataFrame(rows_hd).set_index(["p", "method"])
+```
+
+```
+                          mean     SD   RMSE
+p   method                                  
+50  OLS, all controls    0.489  0.073  0.074
+    naïve plug-in Lasso  0.610  0.067  0.128
+    DML with Lasso       0.508  0.065  0.066
+150 OLS, all controls    0.500  0.161  0.161
+    naïve plug-in Lasso  0.691  0.075  0.205
+    DML with Lasso       0.549  0.075  0.089
+190 OLS, all controls    0.520  0.430  0.430
+    naïve plug-in Lasso  0.696  0.087  0.214
+    DML with Lasso       0.556  0.082  0.099
+300 OLS, all controls      NaN    NaN    NaN
+    naïve plug-in Lasso  0.706  0.081  0.221
+    DML with Lasso       0.543  0.063  0.076
+```
+
+**Reading the table.**
+
+- **OLS** is centered near 0.5 when $p = 50$, but its SD grows quickly as $p$ approaches $n$, and at $p = 300 > n$ it cannot be computed (`NaN`). This is the ill-conditioning and the singularity from above.
+- **Naïve plug-in Lasso** always runs, but it is centered above 0.5. Lasso drops or shrinks the controls that move both $D$ and $Y$, so part of their effect is credited to $D$.
+- **DML with Lasso** stays close to 0.5 for every $p$, including $p > n$ (between 0.51 and 0.56 here), with a small SD. It has the smallest RMSE once $p$ is 150 or more.
+
+So with many controls, using Lasso is not a luxury: OLS may not be usable at all. But Lasso by itself is biased, and DML is what makes Lasso safe for estimating $\tau$. This needs the true model to be (approximately) sparse.
+
+### 4.3 Summary
+
+| situation | OLS | naïve plug-in ML | DML |
+|---|---|---|---|
+| $n$ much larger than $p$, linear controls (NHEFS) | fine | biased | fine |
+| $p$ close to or larger than $n$, sparse linear model | very noisy or impossible | biased | fine (with Lasso) |
+
+DML does not beat OLS when OLS is already right. It is what lets us use machine learning, which we need when there are too many controls, without letting the machine learning bias the estimate of $\tau$.
+
+<a id="appendix-ml"></a>
+
+## Appendix A. Lasso, Ridge, and random forest at a glance
+
+| | Lasso | Ridge | Random forest |
+|---|---|---|---|
+| what it does | linear regression with the penalty $\lambda \sum_j \lvert\beta_j\rvert$ | linear regression with the penalty $\alpha \sum_j \beta_j^2$ | averages many regression trees, each grown on a bootstrap sample with a random subset of columns at each cut |
+| sets coefficients exactly to zero | yes | no | no coefficients at all |
+| nonlinear shapes and interactions | only if we add such columns ourselves | only if we add such columns ourselves | learned automatically |
+| needs standardized columns | yes | yes | no |
+| works with more controls than people | yes, if only a few controls really matter | yes | yes |
+
+**Lasso** (Tibshirani 1996)
+
+- Strengths: it keeps a small set of controls, so the fitted model is easy to read. It still works when there are more controls than people, as long as only a few controls really matter (the model is **sparse**). It is fast.
+- Weaknesses: it shrinks every coefficient it keeps toward zero (regularization bias). It can drop a control that strongly predicts $D$ but only weakly predicts $Y$, which is exactly a confounder we need (Belloni, Chernozhukov and Hansen 2014). When controls are correlated, which ones it keeps can change a lot with small changes in the data.
+
+**Ridge** (Hoerl and Kennard 1970)
+
+- Strengths: it keeps every control and copes well with many correlated controls, because $X^{\top}X + \alpha I$ can be inverted even when $X^{\top}X$ cannot. It has a closed-form solution and is fast.
+- Weaknesses: it shrinks all coefficients, including the one on $D$. It never sets a coefficient to zero, so it does not tell us which controls matter.
+
+**Random forest** (Breiman 2001)
+
+- Strengths: it learns nonlinear shapes and interactions without us writing them down. It needs no standardization and little tuning.
+- Weaknesses: it has no coefficient on $D$, so one forest of $Y$ on $(D, X)$ gives an estimate of $\tau$ that is pulled toward zero (Section 3.3). Evaluated on the people it was trained on, it memorizes their noise, so honest residuals need cross-fitting (Section 2.3). It is slower than Lasso or Ridge and needs more data to learn smooth shapes.
+
+**Inside DML**, any of the three can be the learner for $E[Y \mid X]$ and $E[D \mid X]$, as long as it predicts them well enough (Chernozhukov et al. 2018). In practice we compare the out-of-fold prediction errors (RMSE), as in Section 2.2.
+
+For more detail: James, Witten, Hastie and Tibshirani, *An Introduction to Statistical Learning*, Chapter 6 (Lasso and Ridge) and Chapter 8 (trees and random forests), and Hastie, Tibshirani and Friedman, *The Elements of Statistical Learning*, Section 3.4 and Chapter 15.
+
+[Back to the model section](#back-to-ml)
+
+<a id="appendix-trap"></a>
+
+## Appendix B. A trap: questions that only half of the sample answered
+
+Six questions (`hbp`, `hbpmed`, `diabetes`, `boweltrouble`, `pica`, `birthcontrol`) are stored as numbers: 0 for "no", 1 for "yes", and 2 for "missing" (the person was not asked or did not answer). The same 769 people have the code 2 on all six. If we turn each code 2 into its own dummy, we get six identical columns. Then no regression can tell them apart and the matrix $X^\top X$ cannot be inverted. Similarly `alcoholpy` repeats information that is already in `alcoholfreq`.
+
+The fix: one dummy `module_missing` for the 769 people, one "yes" dummy per question, and no `alcoholpy`. The code cell in Section 1.2 checks the rank before and after the fix.
+
+[Back to Section 1.2](#back-to-controls)
+
+## References
+
+- Bach, P., Chernozhukov, V., Kurz, M. S., and Spindler, M. (2022). DoubleML: An object-oriented implementation of double machine learning in Python. *Journal of Machine Learning Research*, 23(53), 1–6. <https://jmlr.org/papers/v23/21-0862.html>
+- Belloni, A., Chernozhukov, V., and Hansen, C. (2014). Inference on treatment effects after selection among high-dimensional controls. *Review of Economic Studies*, 81(2), 608–650. <https://doi.org/10.1093/restud/rdt044>
+- Breiman, L. (2001). Random forests. *Machine Learning*, 45(1), 5–32. <https://doi.org/10.1023/A:1010933404324>
+- Chernozhukov, V., Chetverikov, D., Demirer, M., Duflo, E., Hansen, C., Newey, W., and Robins, J. (2018). Double/debiased machine learning for treatment and structural parameters. *The Econometrics Journal*, 21(1), C1–C68. <https://arxiv.org/abs/1608.00060>
+- Hastie, T., Tibshirani, R., and Friedman, J. (2009). *The Elements of Statistical Learning* (2nd ed.). Springer. <https://doi.org/10.1007/978-0-387-84858-7>
+- Hernán, M. A., and Robins, J. M. (2020). *Causal Inference: What If*. Chapman & Hall/CRC. <https://www.hsph.harvard.edu/miguel-hernan/wp-content/uploads/sites/1268/2024/04/hernanrobins_WhatIf_26apr24.pdf>
+- Hoerl, A. E., and Kennard, R. W. (1970). Ridge regression: Biased estimation for nonorthogonal problems. *Technometrics*, 12(1), 55–67. <https://doi.org/10.1080/00401706.1970.10488634>
+- Huntington-Klein, N., and Barrett, M. *causaldata*: Example data sets for causal inference textbooks. <https://pypi.org/project/causaldata>
+- James, G., Witten, D., Hastie, T., and Tibshirani, R. *An Introduction to Statistical Learning*, Chapter 6 slides: Linear model selection and regularization. <https://web.stanford.edu/~hastie/ISLR2/Slides/Ch6_Model_Selection.pdf>
+- James, G., Witten, D., Hastie, T., and Tibshirani, R. *An Introduction to Statistical Learning*, Chapter 8 slides: Tree-based methods. <https://web.stanford.edu/~hastie/ISLR2/Slides/Ch8_Tree_Based_Methods.pdf>
+- Künzel, S. R., Sekhon, J. S., Bickel, P. J., and Yu, B. (2019). Metalearners for estimating heterogeneous treatment effects using machine learning. *Proceedings of the National Academy of Sciences*, 116(10), 4156–4165. <https://pmc.ncbi.nlm.nih.gov/articles/PMC6410831>
+- Pedregosa, F., et al. (2011). Scikit-learn: Machine learning in Python. *Journal of Machine Learning Research*, 12, 2825–2830. <https://jmlr.org/papers/v12/pedregosa11a.html>
+- scikit-learn documentation: `Lasso` <https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Lasso.html> and `Ridge` <https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html>
+- Seabold, S., and Perktold, J. (2010). statsmodels: Econometric and statistical modeling with Python. *Proceedings of the 9th Python in Science Conference*, 92–96. <https://doi.org/10.25080/Majora-92bf1922-011>
+- Tibshirani, R. (1996). Regression shrinkage and selection via the lasso. *Journal of the Royal Statistical Society: Series B*, 58(1), 267–288. <https://doi.org/10.1111/j.2517-6161.1996.tb02080.x>
+- White, H. (1980). A heteroskedasticity-consistent covariance matrix estimator and a direct test for heteroskedasticity. *Econometrica*, 48(4), 817–838. <https://www.jstor.org/stable/1912934>
