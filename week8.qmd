@@ -301,13 +301,13 @@ where $i \in \cup_{j=2}^5 I_j$. Here, please keep in mind that $\tilde{\beta}$ i
 
 2. second, using the 1st fold, we compute the following for a given $\tau$: 
 $$
-    \frac{1}{n}\sum_{i \in I_1} \psi(\tau, \tilde{\eta}_{0,1}),
+    \frac{1}{n}\sum_{i \in I_1} \psi(\tau, \tilde{\eta}_{0,1}; W_i),
 $$
-where $\psi: \mathcal{W} \times \Theta \rightarrow \mathbb{R}$ is the Neyman score function. 
+where $\psi: \Theta \times \mathcal{W} \rightarrow \mathbb{R}$ is the Neyman score function. 
 
 3. third, repeat step 1 and 2 using all the 5 folds. After collecting the 5 score functions $\psi$ in step 2, we estimate $\tau$ satisfying the following objective function: 
 $$
-    \frac{1}{5}\sum_{j=1}^5 \frac{1}{n}\sum_{i \in I_j} \psi(\tau, \tilde{\eta}_{0,j}) = 0
+    \frac{1}{5}\sum_{j=1}^5 \frac{1}{n}\sum_{i \in I_j} \psi(\tau, \tilde{\eta}_{0,j};W_i) = 0
 $$
 
 This is how DML works. 
