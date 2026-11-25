@@ -356,7 +356,7 @@ We use the same three famous machine learning methods, or learners: Lasso, Ridge
 
 **What the code computes.** The same `dml()` with three choices of learner, used for both $\tilde{\beta}$ and $\tilde{\gamma}$. Here $D$ is **not** an input. Each learner predicts from $X$ only.
 
-- Lasso: inside each training set, standardize the 56 columns of $X_i$, so we let $Z_{ip} = (X_{ip} - \bar{X}_p)/sd(X_{ip})$, where $X_{ip}$ is the $p$th element of $X_i$. Then we fit $E[Y_i \mid Z_i] = b_0 + Z_i^{\top}\beta$ with the Lasso or $\ell_1$ regularization term, $|\beta|_1 = \sum_{m =1}^{56} | \beta_m |$ with regularization parameter $\lambda$. The intercept $b_0$ is not penalized. Thus we estimate $\beta$ as $\tilde \beta$ by solving 
+- Lasso: inside each training set, standardize the 56 columns of $X_i$, so we let $Z_{ip} = (X_{ip} - \bar{X}_p)/sd(X_{ip})$, where $X_{ip}$ is the $p$th element of $X_i$. Then we fit $E[Y_i \mid Z_i] = b_0 + Z_i^{\top}\beta$ with the Lasso or $\ell_1$ regularization term, $ \|\beta\|_1 = \sum_{m =1}^{56} \mid \beta_m \mid$ with regularization parameter $\lambda$. The intercept $b_0$ is not penalized. Thus we estimate $\beta$ as $\tilde \beta$ by solving 
 $$
 \min_{b_0, \beta'} \frac{1}{2n} \sum_{i=1}^n (Y_i - b_0 - Z_i^{\top}\beta')^2 + \lambda \| \beta' \|_1
 $$ We choose $\lambda$ by 5-fold cross-validation. The same approach applies to $D$ as the outcome to get $\tilde \gamma$. 
@@ -367,7 +367,7 @@ $$
 \min_{b_0, \beta'} \sum_{i=1}^n (Y_i - b_0 - Z_i^{\top}\beta')^2 + \alpha \| \beta' \|_2^2
 $$
 
-- Random forest: $\hat\ell(X) = \frac1B \sum_b T_b(X)$, a forest of $Y$ on $X$. For $D$ the same regression forest predicts the share of quitters in each leaf, which estimates $m(X) = P(D = 1 \mid X)$. `n_jobs=1` inside the forest because the 10 fits already run in parallel (the `Parallel` call inside `dml()`).
+- Random forest: a regression tree splits people into groups of people with similar $X$, one cut at a time, and predicts $Y$ by the average $Y$ in each group (a leaf). For example, a small tree of $Y$ on $X$ first splits people at age 56.5, then splits each of the two groups by weight in 1971. A random forest grows 500 such trees, each on a random resample of the people and with only a random half of the 56 columns allowed at each cut, and averages their predictions. This gives $\tilde Y_i$ without any coefficients. For $D$, the same kind of forest averages $D$ in each leaf, that is, the share of people who quit, so the prediction $\tilde D_i$ estimates $P(D_i = 1 \mid X_i)$. `n_jobs=1` inside the forest because the 10 fits already run in parallel (the `Parallel` call inside `dml()`).
 
 The loop calls `dml(X, d, y, model, model, method="crossfit")` for each learner, adds a row with $\hat{\tau}_{\text{ATE}}^{\text{DML}}$ and its standard error from the formula below, and keeps the two RMSEs to show how well each learner predicts $Y$ and $D$ out of sample.
 
@@ -664,9 +664,9 @@ The model is still linear, $Y_i = \tau D_i + X_i^{\top}\beta + \epsilon_i$ and $
 **Why OLS struggles.** OLS needs $(W^{\top}W)^{-1}$.
 
 - If $p + 2 > n$, $W$ has more columns than rows. Then $W^{\top}W$ is **singular** (some combination of columns is exactly zero), it has no inverse, and OLS cannot be computed.
-- If $p$ is a bit below $n$, $W^{\top}W$ can be inverted but is **ill-conditioned**. Its smallest eigenvalue is tiny, so the inverse is huge, and OLS is unbiased but extremely noisy.
+- If $p$ is a bit below $n$, $W^{\top}W$ can be inverted but it is "unstable." Mathematicians call this **ill-conditioned**. In our sample, some column of $W$ can be almost reproduced by a combination of the other columns, meaning the columns are linearly independent, but only barely. Then the smallest eigenvalue of $W^{\top}W$ is close to zero, so its inverse $(W^{\top}W)^{-1}$ becomes very large. Since the variance of the OLS estimate is $\sigma^2 (W^{\top}W)^{-1}$, OLS is still unbiased but extremely noisy.
 
-We measure this with the **condition number** of $W^{\top}W$, the ratio of its largest eigenvalue to its smallest. A condition number near 1 is ideal, and a very large one means the inverse amplifies noise.
+We measure this instability with the **condition number** of a square matrix $A$. In our case, $A = W^{\top}W$. The condition number is the ratio of the largest eigenvalue to the smallest eigenvalue of $A$. If the condition number is near 1, no column is close to a combination of the others, and a small amount of noise in the data does not change the estimate much. When it is very large, the smallest eigenvalue is close to 0, and the estimate is unstable.
 
 ```python
 # No data here: simulated W = (1, D, X) with n = 200 and different p, condition number of W'W
