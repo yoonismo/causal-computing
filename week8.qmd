@@ -9,8 +9,7 @@ All of a sudden, we are looking at the term, machine learning. Why are we seeing
 
 - what double/debiased machine learning (DML) is, that is, what "double" and "debiased" mean, 
 - in which part of estimation for causal effects it is used, and 
-- how it is implemented and
-- what happens if either of machine learning techniques or both are not used when necessary.
+- how it is implemented. 
 
 ## Get the starter repository
 
@@ -121,10 +120,10 @@ $$
 $$
 
 - $\tau$ is the effect of quitting on weight change. This is the one number we want.
-- $X_i^{\top}\beta$ is how the controls affect weight change. However, it can be any function with nonlinear shapes.
-- $X_i^{\top}\gamma$ is a linear approximation of $D_i$ given $X$. We could use some functional form $\text{Pr}(D_i =1 \mid X_i)$ as the probability of quitting given $X_i$, or the **propensity score**. $V = D - X_i^{\top}\gamma$ is the part of $D$ that $X$ does not explain. 
+- $X_i^{\top}\beta$ is how the controls affect weight change.
+- $X_i^{\top}\gamma$ is a linear approximation of $D_i$ given $X$. We could use some functional form $\text{Pr}(D_i =1 \mid X_i)$ as the probability of quitting given $X_i$, or the **propensity score**. $\xi_i = D_i - X_i^{\top}\gamma$ is the part of $D$ that $X$ does not explain. 
 
-We must estimate $\beta$ and $\gamma$ to get $\tau$, but we do not care about them for their own sake. Functions like this are called **nuisance functions**. We collect them in $\eta = (\beta, \gamma)$. 
+We must estimate $\beta$ and $\gamma$ to get $\tau$, but we do not care about them for their own sake. Parameters like this are called **nuisance parameters**. We collect them in $\eta = (\beta, \gamma)$. 
 
 ```python
 # No data here: packages
@@ -295,20 +294,23 @@ For instance, for $[n] = \{1,2,3,...,n\}$, we can have a partition of 5 folds, s
 $$
 \begin{align*}
     D_i =& X_i^{\top}\gamma + \xi_i \rightarrow \tilde D_i = X_i^{\top}\tilde{\gamma}_{0,1}\\
-    Y_i =& X_i^{\top}\beta + \phi_i \rightarrow \tilde{Y}_i = X_i^{\top}\tilde{\beta}_{0,1}
+    Y_i =& X_i^{\top}(\beta + \tau\gamma) + \phi_i \rightarrow \tilde{Y}_i = X_i^{\top}\tilde{\beta}_{0,1}
 \end{align*}
 $$
-where $i \in \cup_{j=2}^5 I_j$. Here, please keep in mind that $\tilde{\beta}$ is the estimate of a model $Y_i = X_i^{\top}\beta + \phi_i$, $\phi_i = \tau D_i + \epsilon_i$. We denote $\tilde{\eta}_{0,1} = (\tilde{\beta}_{0,1}, \tilde{\gamma}_{0,1})$. Then we can generalize this notation as for each $j \in [5]$, $\tilde{\eta}_{0,j} = (\tilde{\beta}_{0,j}, \tilde{\gamma}_{0,j})$
+where the estimates $\tilde{\gamma}_{0,1}$ and $\tilde{\beta}_{0,1}$ use only $i \in \cup_{j=2}^5 I_j$, and the predictions $\tilde D_i$ and $\tilde Y_i$ are computed for $i \in I_1$. Here, please keep in mind that $\tilde{\beta}$ is the estimate of the coefficient of $Y$ on $X$ alone. Substituting $D_i = X_i^{\top}\gamma + \xi_i$ into $Y_i = \tau D_i + X_i^{\top}\beta + \epsilon_i$ gives
+$$
+Y_i = \tau (X_i^{\top}\gamma + \xi_i) + X_i^{\top}\beta + \epsilon_i = X_i^{\top}(\beta + \tau\gamma) + \phi_i, \qquad \phi_i = \tau\xi_i + \epsilon_i .
+$$
+$X$ moves $Y$ in two ways, directly ($\beta$) and through $D$ ($\tau\gamma$). So $\tilde{\beta}$ estimates $\beta + \tau\gamma$, not $\beta$. This is fine, because DML only needs the prediction $\tilde Y_i$, and the residual $Y_i - \tilde Y_i$ is close to $\tau\xi_i + \epsilon_i$. We denote $\tilde{\eta}_{0,1} = (\tilde{\beta}_{0,1}, \tilde{\gamma}_{0,1})$. Then we can generalize this notation as for each $j \in [5]$, $\tilde{\eta}_{0,j} = (\tilde{\beta}_{0,j}, \tilde{\gamma}_{0,j})$
 
 2. second, using the 1st fold, we compute the following for a given $\tau$: 
 $$
-    \frac{1}{n}\sum_{i \in I_1} \psi(\tau, \tilde{\eta}_{0,1}; W_i),
+    \frac{1}{n}\sum_{i \in I_1} \psi(\tau, \tilde{\eta}_{0,1})
 $$
-where $\psi: \Theta \times \mathcal{W} \rightarrow \mathbb{R}$ is the Neyman score function. 
 
-3. third, repeat step 1 and 2 using all the 5 folds. After collecting the 5 score functions $\psi$ in step 2, we estimate $\tau$ satisfying the following objective function: 
+3. third, repeat step 1 and 2 using all the 5 folds. After collecting the 5 functions $\psi$ in step 2, we estimate $\tau$ satisfying the following objective function: 
 $$
-    \frac{1}{5}\sum_{j=1}^5 \frac{1}{n}\sum_{i \in I_j} \psi(\tau, \tilde{\eta}_{0,j};W_i) = 0
+    \frac{1}{5}\sum_{j=1}^5 \frac{1}{n}\sum_{i \in I_j} \psi(\tau, \tilde{\eta}_{0,j}) = 0
 $$
 
 This is how DML works. 
@@ -358,13 +360,13 @@ We use the same three famous machine learning methods, or learners: Lasso, Ridge
 
 **What the code computes.** The same `dml()` with three choices of learner, used for both $\tilde{\beta}$ and $\tilde{\gamma}$. Here $D$ is **not** an input. Each learner predicts from $X$ only.
 
-- Lasso: inside each training set, standardize the 56 columns of $X_i$, so we let $Z_{ip} = (X_{ip} - \bar{X}_p)/sd(X_{ip})$, where $X_{ip}$ is the $p$th element of $X_i$. Then we fit $E[Y_i \mid Z_i] = b_0 + Z_i^{\top}\beta$ with the Lasso or $\ell_1$ regularization term, $||\beta||_1 = \sum_{m =1}^{56} |\beta_m|$ with regularization parameter $\lambda$. The intercept $b_0$ is not penalized. Thus we estimate $\beta$ as $\tilde \beta$ by solving 
+- Lasso: inside each training set, standardize the 56 columns of $X_i$, so we let $Z_{ip} = (X_{ip} - \bar{X}_p)/sd(X_{ip})$, where $X_{ip}$ is the $p$th element of $X_i$. Then we fit $E[Y_i \mid Z_i] = b_0 + Z_i^{\top}\beta$ with the Lasso or $\ell_1$ regularization term, $ \|\beta\|_1 = \sum_{m =1}^{56} \mid \beta_m \mid$ with regularization parameter $\lambda$. The intercept $b_0$ is not penalized. Thus we estimate the coefficients as $\tilde \beta$ by solving 
 $$
 \min_{b_0, \beta'} \frac{1}{2n} \sum_{i=1}^n (Y_i - b_0 - Z_i^{\top}\beta')^2 + \lambda \| \beta' \|_1
-$$ We choose $\lambda$ by 5-fold cross-validation. The same approach applies to $D$ as the outcome to get $\tilde \gamma$. 
+$$ We choose $\lambda$ by 5-fold cross-validation. The same approach applies to $D$ as the outcome to get $\tilde \gamma$. As in Section 2.1, $\tilde \beta$ is the coefficient of $Y$ on $X$ alone, which is $\beta + \tau\gamma$ (on the standardized scale), not $\beta$. 
     - `make_pipeline(StandardScaler(), LassoCV(...))` packs the standardizing and the fit together, so `clone(...).fit(...)` redoes both on every training set and the test fold never affects the means and standard deviations used for standardizing.
 
-- Ridge: similar to Lasso approach, except we use squared $\ell_2$ regularization $\|\beta\|_2^2 = \sum_{m =1}^{56}|\beta_m|^2$ with regularization parameter $\alpha$. Hence our objective function is 
+- Ridge: similar to Lasso approach, except we use squared $\ell_2$ regularization $\|\beta\|_2^2 = \sum_{m =1}^{56} \mid \beta_m \mid^2$ with regularization parameter $\alpha$. Hence our objective function is 
 $$
 \min_{b_0, \beta'} \sum_{i=1}^n (Y_i - b_0 - Z_i^{\top}\beta')^2 + \alpha \| \beta' \|_2^2
 $$
@@ -746,7 +748,7 @@ p   method
 
 - **OLS** is centered near 0.5 when $p = 50$, but its SD grows quickly as $p$ approaches $n$, and at $p = 300 > n$ it cannot be computed (`NaN`). This is the ill-conditioning and the singularity from above.
 - **Naïve plug-in Lasso** always runs, but it is centered above 0.5. Lasso drops or shrinks the controls that move both $D$ and $Y$, so part of their effect is credited to $D$.
-- **DML with Lasso** stays close to 0.5 for every $p$, including $p > n$ (between 0.51 and 0.56 here), with a small SD. It has the smallest RMSE once $p$ is 150 or more.
+- **DML with Lasso** stays close to 0.5 for every $p$, including $p > n$ (between 0.51 and 0.56 here), with a small SD. It has the smallest RMSE for every $p$ in the table.
 
 So with many controls, using Lasso is not a luxury: OLS may not be usable at all. But Lasso by itself is biased, and DML is what makes Lasso safe for estimating $\tau$. This needs the true model to be (approximately) sparse.
 
