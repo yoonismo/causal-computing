@@ -8,9 +8,8 @@ title: "Week 8: Double/Debiased Machine Learning (DML)"
 All of a sudden, we are looking at the term, machine learning. Why are we seeing this? Where does it come from? Today, we are going to study 
 
 - what double/debiased machine learning (DML) is, that is, what "double" and "debiased" mean, 
-- in which part of estimation for causal effects it is used, 
-- how it is implemented, and
-- what will happen if machine learning techinques are not used when necessary.
+- in which part of estimation for causal effects it is used, and 
+- how it is implemented. 
 
 ## Get the starter repository
 
@@ -177,23 +176,9 @@ max       1.00    48.54
 
 ### 1.2 Which variables can be controls?
 
-Controls must be measured **before** the treatment. Quitting happened between 1971 and 1982, so we only use variables from 1971. We leave out:
+We use 41 variables measured in 1971 as controls. Which variables we keep, which we leave out, and why are in [Appendix B.1](#appendix-controls).
 
-- variables measured in 1982 or later: `wt82`, `sbp`, `dbp`, `smkintensity82_71`, `death` and the date of death, `price82`, `tax82`, `hightax82`, and the 1971–1982 differences
-- the outcome itself, `wt82_71`
-- tobacco prices and taxes in 1971 (`price71`, `tax71`). They change how likely people are to quit but should not change weight directly. We keep them for an instrumental variables example later.
-- variables with missing values: `income`, `cholesterol`, `alcoholhowmuch`, `pregnancies`, `birthplace`
-
-That leaves 41 variables from 1971.
-
-| group | variables |
-|---|---|
-| numbers (6) | `age`, `school`, `ht`, `wt71`, `smokeintensity`, `smokeyrs` |
-| yes/no (22) | `sex`, `race`, and 20 health questions (`asthma`, `bronch`, `tb`, `hf`, `pepticulcer`, `colitis`, `hepatitis`, `chroniccough`, `hayfever`, `polio`, `tumor`, `nervousbreak`, `allergies`, `headache`, `otherpain`, `weakheart`, `nerves`, `lackpep`, `wtloss`, `infection`) |
-| categories (6) | `education`, `marital`, `active`, `exercise`, `alcoholfreq`, `alcoholtype` |
-| half-sample questions (6 + 1) | `hbp`, `hbpmed`, `diabetes`, `boweltrouble`, `pica`, `birthcontrol`, and one indicator `module_missing` |
-
-The following code is for data processing to ensure we have the mathematical properties necessary to run DML and OLS. For a more detailed explanation, please see [Appendix B](#appendix-trap). <a id="back-to-controls"></a>
+The following code is for data processing to ensure we have the mathematical properties necessary to run DML and OLS. For a more detailed explanation, please see [Appendix B.2](#appendix-trap). <a id="back-to-controls"></a>
 
 ```python
 # Data: NHEFS, building the control matrix X
@@ -805,9 +790,33 @@ For more detail: James, Witten, Hastie and Tibshirani, *An Introduction to Stati
 
 [Back to the model section](#back-to-ml)
 
+<a id="appendix-controls"></a>
+
+## Appendix B. Data processing
+
+### B.1 Which variables can be controls?
+
+Controls must be measured **before** the treatment. Quitting happened between 1971 and 1982, so we only use variables from 1971. We leave out:
+
+- variables measured in 1982 or later: `wt82`, `sbp`, `dbp`, `smkintensity82_71`, `death` and the date of death, `price82`, `tax82`, `hightax82`, and the 1971–1982 differences
+- the outcome itself, `wt82_71`
+- tobacco prices and taxes in 1971 (`price71`, `tax71`). They change how likely people are to quit but should not change weight directly. We keep them for an instrumental variables example later.
+- variables with missing values: `income`, `cholesterol`, `alcoholhowmuch`, `pregnancies`, `birthplace`
+
+That leaves 41 variables from 1971.
+
+| group | variables |
+|---|---|
+| numbers (6) | `age`, `school`, `ht`, `wt71`, `smokeintensity`, `smokeyrs` |
+| yes/no (22) | `sex`, `race`, and 20 health questions (`asthma`, `bronch`, `tb`, `hf`, `pepticulcer`, `colitis`, `hepatitis`, `chroniccough`, `hayfever`, `polio`, `tumor`, `nervousbreak`, `allergies`, `headache`, `otherpain`, `weakheart`, `nerves`, `lackpep`, `wtloss`, `infection`) |
+| categories (6) | `education`, `marital`, `active`, `exercise`, `alcoholfreq`, `alcoholtype` |
+| half-sample questions (6 + 1) | `hbp`, `hbpmed`, `diabetes`, `boweltrouble`, `pica`, `birthcontrol`, and one indicator `module_missing` |
+
+[Back to Section 1.2](#back-to-controls)
+
 <a id="appendix-trap"></a>
 
-## Appendix B. A trap: questions that only half of the sample answered
+### B.2 A trap: questions that only half of the sample answered
 
 Six questions (`hbp`, `hbpmed`, `diabetes`, `boweltrouble`, `pica`, `birthcontrol`) are stored as numbers: 0 for "no", 1 for "yes", and 2 for "missing" (the person was not asked or did not answer). The same 769 people have the code 2 on all six. If we turn each code 2 into its own dummy, we get six identical columns. Then no regression can tell them apart and the matrix $X^\top X$ cannot be inverted. Similarly `alcoholpy` repeats information that is already in `alcoholfreq`.
 
