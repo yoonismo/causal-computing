@@ -356,7 +356,7 @@ We use the same three famous machine learning methods, or learners: Lasso, Ridge
 
 **What the code computes.** The same `dml()` with three choices of learner, used for both $\tilde{\beta}$ and $\tilde{\gamma}$. Here $D$ is **not** an input. Each learner predicts from $X$ only.
 
-- Lasso: inside each training set, standardize the 56 columns of $X_i$, so we let $Z_{ip} = (X_{ip} - \bar{X}_p)/sd(X_{ip})$, where $X_{ip}$ is the $p$th element of $X_i$. Then we fit $E[Y_i \mid Z_i] = b_0 + Z_i^{\top}\beta$ with the Lasso or $\ell_1$ regularization term, $ \|\beta\|_1 = \sum_{m =1}^{56} \mid \beta_m \mid$ with regularization parameter $\lambda$. The intercept $b_0$ is not penalized. Thus we estimate $\beta$ as $\tilde \beta$ by solving 
+- Lasso: inside each training set, standardize the 56 columns of $X_i$, so we let $Z_{ip} = (X_{ip} - \bar{X}_p)/sd(X_{ip})$, where $X_{ip}$ is the $p$th element of $X_i$. Then we fit $E[Y_i \mid Z_i] = b_0 + Z_i^{\top}\beta$ with the Lasso or $\ell_1$ regularization term, $|\beta|_1 = \sum_{m =1}^{56} |\beta_m|$ with regularization parameter $\lambda$. The intercept $b_0$ is not penalized. Thus we estimate $\beta$ as $\tilde \beta$ by solving 
 $$
 \min_{b_0, \beta'} \frac{1}{2n} \sum_{i=1}^n (Y_i - b_0 - Z_i^{\top}\beta')^2 + \lambda \| \beta' \|_1
 $$ We choose $\lambda$ by 5-fold cross-validation. The same approach applies to $D$ as the outcome to get $\tilde \gamma$. 
