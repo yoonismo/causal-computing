@@ -8,8 +8,9 @@ title: "Week 8: Double/Debiased Machine Learning (DML)"
 All of a sudden, we are looking at the term, machine learning. Why are we seeing this? Where does it come from? Today, we are going to study 
 
 - what double/debiased machine learning (DML) is, that is, what "double" and "debiased" mean, 
-- in which part of estimation for causal effects it is used, and 
-- how it is implemented. 
+- in which part of estimation for causal effects it is used, 
+- how it is implemented, and
+- what will happen if machine learning techinques are not used when necessary.
 
 ## Get the starter repository
 
